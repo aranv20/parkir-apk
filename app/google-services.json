@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "997702577388",
+    "project_id": "parkir-polinela",
+    "storage_bucket": "parkir-polinela.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:997702577388:android:813314c1cde69da25d09c9",
+        "android_client_info": {
+          "package_name": "com.example.parkirfirebase"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAbmi7rKk-_kpzKx3rMAUR4haOMrk4Xcls"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
