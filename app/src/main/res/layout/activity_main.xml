@@ -12,12 +12,15 @@
         android:id="@+id/user_details"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="300dp"/>
+        android:layout_marginLeft="150dp"
+        android:layout_marginTop="380dp"/>
 
     <Button
         android:id="@+id/logout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="400dp"
+        android:layout_marginLeft="170dp"
         android:text="@string/logout" />
 
     <com.google.android.material.bottomappbar.BottomAppBar
@@ -32,13 +35,12 @@
         <com.google.android.material.bottomnavigation.BottomNavigationView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:id="@+id/bottomNavigationView"
+            android:id="@+id/bottomNav"
             android:layout_marginRight="16dp"
             app:menu="@menu/bottom_nav_menu"
             android:background="@drawable/transparent_background">
 
         </com.google.android.material.bottomnavigation.BottomNavigationView>
-
     </com.google.android.material.bottomappbar.BottomAppBar>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
