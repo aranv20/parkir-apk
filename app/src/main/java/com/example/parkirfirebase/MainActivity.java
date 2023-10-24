@@ -29,6 +29,7 @@ public class MainActivity extends AppCompatActivity {
 
     private MeowBottomNavigation meowBottomNavigation;
 
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
@@ -69,11 +70,9 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        //set nofication count
-        meowBottomNavigation.setCount(1, "10");
 
         //set default
-        meowBottomNavigation.show(2, true);
+        meowBottomNavigation.show(1, true);
 
         meowBottomNavigation.setOnClickMenuListener(new MeowBottomNavigation.ClickListener() {
             @Override
