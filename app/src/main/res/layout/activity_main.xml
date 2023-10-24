@@ -15,8 +15,7 @@
         android:layout_marginLeft="150dp"
         android:layout_marginTop="380dp"/>
 
-<<<<<<< HEAD
-=======
+
     <Button
         android:id="@+id/logout"
         android:layout_width="wrap_content"
@@ -24,7 +23,7 @@
         android:layout_marginTop="400dp"
         android:layout_marginLeft="170dp"
         android:text="@string/logout" />
->>>>>>> 93de54764fc4a62054acac22d6e5de2b5917e6a6
+
 
     <com.google.android.material.bottomappbar.BottomAppBar
         android:layout_width="match_parent"
