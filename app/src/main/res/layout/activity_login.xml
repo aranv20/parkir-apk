@@ -3,6 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="410dp"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical"
     android:background="@color/primary">
 
@@ -60,7 +61,9 @@
                 android:layout_height="match_parent"
                 android:layout_marginStart="-5dp"
                 android:layout_marginTop="-40dp"
+
                 android:layout_marginEnd="-5dp"
+                app:passwordToggleEnabled="true"
                 android:padding="28sp"
                 android:textColor="@color/black">
 

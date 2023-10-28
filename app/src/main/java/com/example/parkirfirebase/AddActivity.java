@@ -1,26 +1,52 @@
 package com.example.parkirfirebase;
 
+import androidx.activity.result.ActivityResult;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.Activity;
+import android.content.Intent;
+import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.Toast;
 
+import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
+
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.FirebaseStorage;
+
+import com.google.firebase.storage.UploadTask;
+
 import java.util.Arrays;
+import java.util.Base64;
 
 public class AddActivity extends AppCompatActivity {
 
-    Spinner lokasi;
+    private Spinner lokasi;
+    private FirebaseStorage firebaseStorage;
+    private StorageReference mStorageRef;
+    private FirebaseFirestore firestore;
+    private ImageView gambar;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add);
+        mStorageRef = FirebaseStorage.getInstance().getReference();
 
+        gambar = findViewById(R.id.gambar);
         lokasi = findViewById(R.id.lokasi);
         String[] values={"pilih lokasi","Gedung KHD","Gedung Seroja","Gedung Baru"};
         ArrayList<String> arrayList = new ArrayList<>(Arrays.asList(values));
@@ -42,4 +68,44 @@ public class AddActivity extends AppCompatActivity {
             }
         });
     }
+    public void uploadGambar(View v){
+        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        startActivityForResult(intent,101);
+    }
+    @Override
+    protected void onActivityResult(int requestCode,int resultCode, @Nullable Intent data){
+        super.onActivityResult(requestCode,resultCode,data);
+        if (resultCode == Activity.RESULT_OK){
+            if(requestCode == 101){
+                onCaptureImageResult(data);
+            }
+        }
+    }
+
+    private void onCaptureImageResult(Intent data) {
+        Bitmap thumbnail = (Bitmap)  data.getExtras().get("data");
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+        thumbnail.compress(Bitmap.CompressFormat.JPEG,90,bytes);
+        byte bb[] = bytes.toByteArray();
+        gambar.setImageBitmap(thumbnail);
+
+        uploadToFirebase(bb);
+    }
+
+    private void uploadToFirebase(byte[]bb){
+        StorageReference sr = mStorageRef.child("myimages/.jpg");
+        sr.putBytes(bb).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+            @Override
+            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                Toast.makeText(AddActivity.this,"Sukses Upload",Toast.LENGTH_SHORT).show();
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Toast.makeText(AddActivity.this,""+"Gagal upload",Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+
 }
