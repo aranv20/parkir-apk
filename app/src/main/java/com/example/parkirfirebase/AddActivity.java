@@ -48,7 +48,7 @@ public class AddActivity extends AppCompatActivity {
 
         gambar = findViewById(R.id.gambar);
         lokasi = findViewById(R.id.lokasi);
-        String[] values={"pilih lokasi","Gedung KHD","Gedung Seroja","Gedung Baru"};
+        String[] values={"Pilih Lokasi","Gedung KHD","Gedung Seroja","Gedung Kuliah Baru","Pos Jembatan","Pos Gedung S"};
         ArrayList<String> arrayList = new ArrayList<>(Arrays.asList(values));
         ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(this, androidx.appcompat.R.layout.support_simple_spinner_dropdown_item,arrayList);
         lokasi.setAdapter(arrayAdapter);
@@ -92,20 +92,20 @@ public class AddActivity extends AppCompatActivity {
         uploadToFirebase(bb);
     }
 
-    private void uploadToFirebase(byte[]bb){
-        StorageReference sr = mStorageRef.child("myimages/.jpg");
+    private void uploadToFirebase(byte[] bb) {
+        String timestamp = String.valueOf(System.currentTimeMillis());
+        StorageReference sr = mStorageRef.child("images/" + timestamp + ".jpg");
+
         sr.putBytes(bb).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
             @Override
             public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                Toast.makeText(AddActivity.this,"Sukses Upload",Toast.LENGTH_SHORT).show();
+                Toast.makeText(AddActivity.this, "Sukses Upload", Toast.LENGTH_SHORT).show();
             }
         }).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
-                Toast.makeText(AddActivity.this,""+"Gagal upload",Toast.LENGTH_SHORT).show();
+                Toast.makeText(AddActivity.this, "Gagal upload", Toast.LENGTH_SHORT).show();
             }
         });
     }
-
-
 }
