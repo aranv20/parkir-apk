@@ -30,6 +30,8 @@ public class MainActivity extends AppCompatActivity {
                 replaceFragment(new HistoryFragment());
             } else if (itemId == R.id.profile) {
                 replaceFragment(new ProfileFragment());
+//            } else if (itemId == R.id.bottomAppBar) {
+//                replaceFragment(new ScanFragment());
             }
             return true;
         });
