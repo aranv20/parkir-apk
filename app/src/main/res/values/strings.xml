@@ -13,4 +13,5 @@
     <string name="parking">Parking</string>
     <string name="scan">Scan</string>
     <string name="history">History</string>
+    <string name="upload">Upload</string>
 </resources>
