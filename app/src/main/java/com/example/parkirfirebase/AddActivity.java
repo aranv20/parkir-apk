@@ -32,7 +32,7 @@ public class AddActivity extends AppCompatActivity {
     private ImageView gambar;
     private Button cameraBtn;
 
-    private static final int CAMERA_PERMISSION_REQUEST_CODE = 101;
+    private static final int REQUEST_IMAGE_CAPTURE = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,7 +44,7 @@ public class AddActivity extends AppCompatActivity {
 
         cameraBtn = findViewById(R.id.cameraBtn);
         lokasi = findViewById(R.id.lokasi);
-        gambar = findViewById(R.id.gambar); // Pastikan ID ImageView sesuai dengan XML layout
+        gambar = findViewById(R.id.gambar);
 
         String[] values = {"Pilih Lokasi", "Gedung KHD", "Gedung Seroja", "Gedung Kuliah Bersama", "Pos Jembatan", "Pos Gedung S"};
         ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, values);
@@ -55,7 +55,6 @@ public class AddActivity extends AppCompatActivity {
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                 String selectedLocation = adapterView.getItemAtPosition(i).toString();
                 if (!selectedLocation.equals("Pilih Lokasi")) {
-                    // Lakukan sesuatu dengan lokasi yang dipilih
                     Toast.makeText(AddActivity.this, "Lokasi: " + selectedLocation, Toast.LENGTH_SHORT).show();
                 }
             }
@@ -69,7 +68,7 @@ public class AddActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if (ContextCompat.checkSelfPermission(AddActivity.this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-                    ActivityCompat.requestPermissions(AddActivity.this, new String[]{Manifest.permission.CAMERA}, CAMERA_PERMISSION_REQUEST_CODE);
+                    ActivityCompat.requestPermissions(AddActivity.this, new String[]{Manifest.permission.CAMERA}, REQUEST_IMAGE_CAPTURE);
                 } else {
                     startCamera();
                 }
@@ -79,13 +78,13 @@ public class AddActivity extends AppCompatActivity {
 
     private void startCamera() {
         Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        startActivityForResult(intent, CAMERA_PERMISSION_REQUEST_CODE);
+        startActivityForResult(intent, REQUEST_IMAGE_CAPTURE);
     }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == CAMERA_PERMISSION_REQUEST_CODE) {
+        if (requestCode == REQUEST_IMAGE_CAPTURE) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 startCamera();
             } else {
@@ -97,7 +96,7 @@ public class AddActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (resultCode == Activity.RESULT_OK && requestCode == CAMERA_PERMISSION_REQUEST_CODE) {
+        if (resultCode == Activity.RESULT_OK && requestCode == REQUEST_IMAGE_CAPTURE) {
             if (data != null && data.getExtras() != null) {
                 Bitmap thumbnail = (Bitmap) data.getExtras().get("data");
                 if (thumbnail != null) {
@@ -120,11 +119,9 @@ public class AddActivity extends AppCompatActivity {
 
         imageRef.putBytes(data)
                 .addOnSuccessListener(taskSnapshot -> {
-                    // Gambar berhasil diunggah, lakukan sesuatu jika diperlukan
                     Toast.makeText(AddActivity.this, "Sukses Upload", Toast.LENGTH_SHORT).show();
                 })
                 .addOnFailureListener(e -> {
-                    // Gagal mengunggah gambar, tampilkan pesan kesalahan
                     Toast.makeText(AddActivity.this, "Gagal upload: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                     Log.e("FirebaseStorage", "Gagal upload: " + e.getMessage());
                 });
