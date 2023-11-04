@@ -4,7 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ScanActivity">
+    tools:context=".ScanActivity"
+    android:padding="10dp">
 
     <LinearLayout
         android:layout_marginTop="5dp"
@@ -15,7 +16,7 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Barcode $amp; QR CODE Scanner"
+            android:text=""
             style="@style/TextAppearance.MaterialComponents.Headline6"
             android:textAlignment="center"/>
 

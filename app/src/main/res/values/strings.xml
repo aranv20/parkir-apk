@@ -14,4 +14,6 @@
     <string name="scan">Scan</string>
     <string name="history">History</string>
     <string name="upload">Upload</string>
+    <string name="hello">Dashboard</string>
+    <string name="ara">Ara</string>
 </resources>
