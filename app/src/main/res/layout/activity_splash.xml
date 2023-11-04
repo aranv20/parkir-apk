@@ -8,10 +8,9 @@
     android:background="@color/primary">
 
     <ImageView
-        android:layout_width="331dp"
-        android:layout_height="411dp"
-        android:layout_marginLeft="28dp"
-        android:layout_marginTop="230dp"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="center"
         android:src="@drawable/logo" />
 
 </LinearLayout>
