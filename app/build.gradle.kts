@@ -48,5 +48,7 @@ dependencies {
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
     implementation("com.google.android.material:material:1.10.0")
     implementation("com.etebarian:meow-bottom-navigation-java:1.2.0")
-    implementation ("com.google.mlkit:barcode-scanning:17.0.2")
+    implementation ("com.google.mlkit:barcode-scanning:17.2.0")
+    implementation ("com.google.android.gms:play-services-mlkit-barcode-scanning:17.1.1")
+
 }

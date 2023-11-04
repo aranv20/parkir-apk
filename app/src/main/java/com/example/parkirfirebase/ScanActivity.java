@@ -1,5 +1,21 @@
 package com.example.parkirfirebase;
 
+import android.Manifest;
+import android.app.Activity;
+import android.content.ContentValues;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.graphics.Point;
+import android.graphics.Rect;
+import android.net.Uri;
+import android.os.Bundle;
+import android.provider.MediaStore;
+import android.util.Log;
+import android.view.View;
+import android.widget.ImageView;
+import android.widget.TextView;
+import android.widget.Toast;
+
 import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
@@ -9,25 +25,9 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
-import android.app.Activity;
-import android.content.ContentValues;
-import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.graphics.Point;
-import android.graphics.Rect;
-import android.net.Uri;
-import android.nfc.Tag;
-import android.os.Bundle;
-import android.provider.MediaStore;
-import android.util.Log;
-import android.view.View;
-import android.widget.ImageView;
-import android.widget.TextView;
-import android.widget.Toast;
-
-
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.button.MaterialButton;
 import com.google.mlkit.vision.barcode.BarcodeScanner;
 import com.google.mlkit.vision.barcode.BarcodeScannerOptions;
@@ -37,19 +37,18 @@ import com.google.mlkit.vision.common.InputImage;
 
 import java.util.List;
 
-import kotlinx.coroutines.scheduling.Task;
 
 public class ScanActivity extends AppCompatActivity {
 
     private MaterialButton cameraBtn,galeryBtn,scanBtn;
     private ImageView imageId;
     TextView resultTv;
-    private static final int CAMERA_REQUEST_CODE = 100;
-    private static final int STORAGE_REQUEST_CODE = 100;
+    private static final int CAMERA_REQUEST_CODE = 101;
+    private static final int STORAGE_REQUEST_CODE = 102;
 
     private String[] cameraPermissions;
     private String[] storagePermissions;
-    private static final String TAG = "MAIN_TAG"
+    private static final String TAG = "MAIN_TAG";
 
     private Uri imageUri = null;
     private BarcodeScannerOptions barcodeScannerOptions;
@@ -92,7 +91,7 @@ public class ScanActivity extends AppCompatActivity {
             public void onClick(View v) {
 
                 if (checkStoragePermission()){
-                    pickImageGalery();
+                    pickImageGallery();
                 }else{
                     requestStoragePermission();
                 }
@@ -216,10 +215,11 @@ public class ScanActivity extends AppCompatActivity {
     }
 
 
-    private void pickImageGalery(){
+    private void pickImageGallery() {
         Intent intent = new Intent(Intent.ACTION_PICK);
+        intent.setType("image/*");
 
-        Intent.setType("image/*");
+        // Menggunakan ActivityResultLauncher untuk meluncurkan intent
         galleryActivityResultLauncher.launch(intent);
     }
 
@@ -263,7 +263,7 @@ public class ScanActivity extends AppCompatActivity {
                         imageId.setImageURI(imageUri);
                     }
                     else {
-                        Toast.makeText(ScanActivity.this,"Canceled..",Toast/Toast.LENGTH_SHORT).show();
+                        Toast.makeText(ScanActivity.this,"Canceled..",Toast.LENGTH_SHORT).show();
                     }
                 }
             }
@@ -321,7 +321,7 @@ public class ScanActivity extends AppCompatActivity {
                     boolean storageAccepted = grantResults[0] == PackageManager.PERMISSION_GRANTED;
 
                     if (storageAccepted){
-                        pickImageGalery();
+                        pickImageGallery();
                     }else {
                         Toast.makeText(this,"Storage permission is reqquired",Toast.LENGTH_SHORT).show();
                     }

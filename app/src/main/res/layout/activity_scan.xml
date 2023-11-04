@@ -37,14 +37,14 @@
                 android:layout_height="wrap_content"
                 android:id="@+id/galeryBtn"
                 android:layout_weight="1"
-                android:layout_marginStart="5"
+                android:layout_marginStart="5dp"
                 android:text="Galery"/>
         </LinearLayout>
 
         <ImageView
             android:id="@+id/imageId"
             android:layout_width="match_parent"
-            android:src="@drawable/baseline_photo_camera_black_24dp"
+            android:src="@drawable/ic_launcher_foreground"
             android:adjustViewBounds="true"
             android:layout_height="wrap_content"/>
 
