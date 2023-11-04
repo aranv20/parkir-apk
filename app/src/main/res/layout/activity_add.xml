@@ -51,9 +51,9 @@
         <Button
             android:layout_width="match_parent"
             android:layout_height="40dp"
-            android:layout_margin="20dp"
+            android:layout_margin="30dp"
             android:id="@+id/upload"
-            android:text="@string/upload"
+            android:text="Generate QR-Code"
             />
     </LinearLayout>
 
