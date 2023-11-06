@@ -5,6 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".ScanActivity"
+    android:background="@color/white"
     android:padding="10dp">
 
     <LinearLayout
@@ -58,9 +59,11 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             style="@style/TextAppearance.MaterialComponents.Body1"
+            android:textColor="@color/black"
             android:text="Result"/>
         <TextView
             android:id="@+id/resultTv"
+            android:textColor="@color/black"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"/>
     </LinearLayout>
