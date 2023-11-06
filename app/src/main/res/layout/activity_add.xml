@@ -5,6 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/white"
     tools:context=".AddActivity">
 
     <LinearLayout
@@ -17,10 +18,12 @@
         android:orientation="vertical">
         <com.google.android.material.card.MaterialCardView
 
+            android:backgroundTint="@color/white"
             android:layout_width="150dp"
             android:layout_height="150dp"
             app:cardCornerRadius="10dp"
             app:cardElevation="5dp">
+
             <LinearLayout
                 android:layout_width="150dp"
                 android:layout_height="150dp"
@@ -39,6 +42,8 @@
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
         <Spinner
+
+            android:backgroundTint="@color/background"
             android:id="@+id/lokasi"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
