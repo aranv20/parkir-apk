@@ -2,6 +2,7 @@ package com.example.parkirfirebase;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -20,17 +21,29 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import java.io.ByteArrayOutputStream;
+import java.util.ArrayList;
 
 public class AddActivity extends AppCompatActivity {
 
     private Spinner lokasi;
     private FirebaseStorage firebaseStorage;
     private StorageReference mStorageRef;
+    private FirebaseFirestore db = FirebaseFirestore.getInstance();
     private ImageView gambar;
     private Button cameraBtn;
+    private ArrayAdapter<String> adapter;
+    private ArrayList<String> pilok;
+    private ProgressDialog progressDialog;
+    private QuerySnapshot cities;
 
     private static final int REQUEST_IMAGE_CAPTURE = 1;
 
@@ -45,24 +58,35 @@ public class AddActivity extends AppCompatActivity {
         cameraBtn = findViewById(R.id.cameraBtn);
         lokasi = findViewById(R.id.lokasi);
         gambar = findViewById(R.id.gambar);
+        progressDialog = new ProgressDialog(AddActivity.this);
+        progressDialog.setTitle("Loading");
+        progressDialog.setMessage("Please");
 
-        String[] values = {"Pilih Lokasi", "Gedung KHD", "Gedung Seroja", "Gedung Kuliah Bersama", "Pos Jembatan", "Pos Gedung S"};
-        ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, values);
-        lokasi.setAdapter(arrayAdapter);
+        pilok = new ArrayList<>();
+        pilok.add("Gedung Kuliah Baru");
+        pilok.add("Gedung KHD");
+        pilok.add("Pos Jembatan");
+        pilok.add("Pos Gedung S");
+        pilok.add("Gedung Seroja");
 
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(getApplicationContext(), android.R.layout.simple_spinner_dropdown_item, pilok);
+        lokasi.setAdapter(adapter);
+        lokasi.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         lokasi.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
-            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-                String selectedLocation = adapterView.getItemAtPosition(i).toString();
-                if (!selectedLocation.equals("Pilih Lokasi")) {
-                    Toast.makeText(AddActivity.this, "Lokasi: " + selectedLocation, Toast.LENGTH_SHORT).show();
-                }
+            public void onItemSelected(AdapterView<?> parent, View view, int i, long l) {
+                Toast.makeText(getApplicationContext(),adapter.getItem(i),Toast.LENGTH_SHORT).show();
+                Log.e("ID CITY", cities.getDocuments().get(i).getId());
             }
 
             @Override
-            public void onNothingSelected(AdapterView<?> adapterView) {
+            public void onNothingSelected(AdapterView<?> parent) {
+
             }
         });
+        getData();
+
+
 
         cameraBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -72,6 +96,31 @@ public class AddActivity extends AppCompatActivity {
                 } else {
                     startCamera();
                 }
+            }
+        });
+    }
+    private void getData(){
+        progressDialog.show();
+        db.collection("city").get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+            @Override
+            public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                progressDialog.hide();
+                cities = queryDocumentSnapshots;
+                if (queryDocumentSnapshots.size() > 0) {
+                    pilok.clear();
+                    for (DocumentSnapshot doc : queryDocumentSnapshots) {
+                        pilok.add(doc.getString("name"));
+                    }
+                    adapter.notifyDataSetChanged();
+                } else {
+                    Toast.makeText(getApplicationContext(), "Data tidak tersedia", Toast.LENGTH_SHORT).show();
+                }
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                progressDialog.hide();
+                Toast.makeText(getApplicationContext(),e.getLocalizedMessage(),Toast.LENGTH_SHORT).show();
             }
         });
     }
