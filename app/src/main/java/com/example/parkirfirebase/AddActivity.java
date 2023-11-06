@@ -64,10 +64,10 @@ public class AddActivity extends AppCompatActivity {
 
         pilok = new ArrayList<>();
         pilok.add("Gedung Kuliah Bersama");
-        pilok.add("Gedung KHD");
-        pilok.add("Pos Jembatan");
-        pilok.add("Pos Gedung S");
         pilok.add("Gedung Seroja");
+        pilok.add("Gedung KHD");
+        pilok.add("Pos Gedung S");
+        pilok.add("Pos Jembatan");
 
         adapter = new ArrayAdapter<>(getApplicationContext(), android.R.layout.simple_spinner_dropdown_item, pilok);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
