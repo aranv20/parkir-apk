@@ -3,6 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="@color/white"
     android:orientation="vertical">
 
     <LinearLayout
@@ -44,8 +45,9 @@
             android:layout_marginStart="10dp"
             android:layout_marginEnd="10dp"
             android:layout_marginTop="20dp"
-            android:textColor="@color/black"
+            android:textColor="@color/white"
             android:backgroundTint="@color/primary"
+            android:textColorHint="@color/white"
             android:padding="28sp">
 
             <com.google.android.material.textfield.TextInputEditText
@@ -53,8 +55,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:drawableStart="@drawable/baseline_mail_24"
-                android:textColorHint="@color/black"
-                android:textColor="@color/black"
+                android:background="@color/grey"
+                android:textColorHint="@color/white"
+                android:textColor="@color/white"
                 android:drawablePadding="10dp"
                 android:hint="@string/email" />
 
@@ -69,15 +72,17 @@
             android:textColor="@color/black"
             app:passwordToggleEnabled="true"
             android:backgroundTint="@color/primary"
+            android:textColorHint="@color/white"
             android:padding="28sp">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/password"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:background="@color/grey"
                 android:drawableStart="@drawable/baseline_lock_24"
                 android:textColorHint="@color/black"
-                android:textColor="@color/black"
+                android:textColor="@color/white"
                 android:drawablePadding="10dp"
                 android:inputType="textPassword"
                 android:hint="@string/password" />
@@ -96,10 +101,10 @@
         android:id="@+id/btn_register"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="20dp"
-        android:layout_marginStart="40dp"
-        android:layout_marginTop="195dp"
-        android:layout_marginEnd="40dp"
+        android:padding="15dp"
+        android:layout_marginStart="80dp"
+        android:layout_marginTop="185dp"
+        android:layout_marginEnd="80dp"
         android:textColor="@color/white"
         android:textSize="14sp"
         android:backgroundTint="@color/cardview_dark_background"/>
@@ -107,7 +112,7 @@
     <TextView
         android:textSize="13sp"
         android:gravity="center"
-        android:layout_marginTop="265dp"
+        android:layout_marginTop="250dp"
         android:layout_marginBottom="10dp"
         android:id="@+id/loginNow"
         android:textColor="@color/black"
@@ -116,4 +121,10 @@
         android:layout_height="wrap_content"/>
 
     </androidx.cardview.widget.CardView>
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="center"
+        android:padding="30dp"
+        android:src="@drawable/logorb" />
 </LinearLayout>
