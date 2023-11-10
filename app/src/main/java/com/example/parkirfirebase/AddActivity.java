@@ -13,6 +13,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.Toast;
@@ -29,6 +30,13 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+import com.google.mlkit.vision.barcode.common.Barcode;
+import com.google.zxing.BarcodeFormat;
+import com.google.zxing.MultiFormatWriter;
+import com.google.zxing.WriterException;
+import com.google.zxing.common.BitMatrix;
+import com.journeyapps.barcodescanner.BarcodeEncoder;
+
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 
@@ -39,11 +47,12 @@ public class AddActivity extends AppCompatActivity {
     private StorageReference mStorageRef;
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
     private ImageView gambar;
-    private Button cameraBtn;
+    private Button cameraBtn,upload;
     private ArrayAdapter<String> adapter;
     private ArrayList<String> pilok;
     private ProgressDialog progressDialog;
     private QuerySnapshot cities;
+
 
     private static final int REQUEST_IMAGE_CAPTURE = 1;
 
@@ -55,9 +64,11 @@ public class AddActivity extends AppCompatActivity {
         firebaseStorage = FirebaseStorage.getInstance();
         mStorageRef = firebaseStorage.getReference();
 
+        Button button = findViewById(R.id.upload);
         cameraBtn = findViewById(R.id.cameraBtn);
         lokasi = findViewById(R.id.lokasi);
         gambar = findViewById(R.id.gambar);
+        ImageView imageView = findViewById(R.id.qrCode);
         progressDialog = new ProgressDialog(AddActivity.this);
         progressDialog.setTitle("Loading");
         progressDialog.setMessage("Please");
@@ -68,6 +79,24 @@ public class AddActivity extends AppCompatActivity {
         pilok.add("Gedung KHD");
         pilok.add("Pos Gedung S");
         pilok.add("Pos Jembatan");
+
+        upload.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                MultiFormatWriter multiFormatWriter = new MultiFormatWriter();
+
+                try {
+                    BitMatrix bitMatrix = multiFormatWriter.encode(lokasi.getMatrix().toString(), BarcodeFormat.QR_CODE,300,300);
+
+                    BarcodeEncoder barcodeEncoder = new BarcodeEncoder();
+                    Bitmap bitmap = barcodeEncoder.createBitmap(bitMatrix);
+
+                    imageView.setImageBitmap(bitmap);
+                }catch (WriterException e){
+                    throw new RuntimeException(e);
+                }
+            }
+        });
 
         adapter = new ArrayAdapter<>(getApplicationContext(), android.R.layout.simple_spinner_dropdown_item, pilok);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
