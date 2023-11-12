@@ -49,10 +49,14 @@ dependencies {
     implementation("com.google.android.material:material:1.10.0")
     implementation("com.etebarian:meow-bottom-navigation-java:1.2.0")
     implementation ("com.google.mlkit:barcode-scanning:17.2.0")
-    implementation ("com.google.android.gms:play-services-mlkit-barcode-scanning:17.1.1")
+
     implementation ("com.journeyapps:zxing-android-embedded:4.3.0")
 
     coreLibraryDesugaring ("com.android.tools:desugar_jdk_libs:2.0.4")
     implementation ("androidx.multidex:multidex:2.0.1")
+
+    implementation ("com.google.zxing:core:3.4.0")
+    implementation ("me.dm7.barcodescanner:zxing:1.9")
+    implementation ("com.google.firebase:firebase-database:23.0.0")
 
 }

@@ -53,6 +53,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginLeft="15dp"
+            android:layout_below="@id/gambar"
             android:layout_marginTop="20dp"
             android:layout_marginRight="15dp"
             android:layout_marginBottom="15dp"
@@ -65,7 +66,6 @@
             android:layout_height="50dp"
             android:layout_margin="30dp"
             android:layout_below="@id/lokasi"
-
             android:text="Generate QR-Code" />
 
         <ImageView

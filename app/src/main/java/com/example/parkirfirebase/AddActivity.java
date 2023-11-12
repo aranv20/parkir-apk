@@ -63,8 +63,7 @@ public class AddActivity extends AppCompatActivity {
 
         firebaseStorage = FirebaseStorage.getInstance();
         mStorageRef = firebaseStorage.getReference();
-
-        Button button = findViewById(R.id.upload);
+        
         cameraBtn = findViewById(R.id.cameraBtn);
         lokasi = findViewById(R.id.lokasi);
         gambar = findViewById(R.id.gambar);
