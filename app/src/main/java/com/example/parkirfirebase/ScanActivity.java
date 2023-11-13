@@ -25,8 +25,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.button.MaterialButton;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -141,13 +139,13 @@ public class ScanActivity extends AppCompatActivity {
 
         // Contoh penggunaan Firestore:
         FirebaseFirestore db = FirebaseFirestore.getInstance();
-        db.collection("your_collection_path") // Ganti dengan nama koleksi di Firestore
+        db.collection("locations") // Ganti dengan nama koleksi di Firestore
                 .document(qrCodeData) // Ganti dengan ID dokumen berdasarkan qrCodeData
                 .get()
                 .addOnSuccessListener(documentSnapshot -> {
                     if (documentSnapshot.exists()) {
                         // Dokumen ditemukan
-                        String dataFromFirebase = documentSnapshot.getString("your_field_name"); // Ganti dengan nama field yang sesuai
+                        String dataFromFirebase = documentSnapshot.getString("namaLokasi"); // Ganti dengan nama field yang sesuai
                         resultTv.setText("Data from Firebase: " + dataFromFirebase);
                     } else {
                         Toast.makeText(ScanActivity.this, "No data found in Firestore", Toast.LENGTH_SHORT).show();

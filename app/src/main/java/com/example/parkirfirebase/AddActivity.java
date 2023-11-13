@@ -13,10 +13,10 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -30,7 +30,6 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
-import com.google.mlkit.vision.barcode.common.Barcode;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.MultiFormatWriter;
 import com.google.zxing.WriterException;
@@ -47,12 +46,11 @@ public class AddActivity extends AppCompatActivity {
     private StorageReference mStorageRef;
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
     private ImageView gambar;
-    private Button cameraBtn,upload;
+    private Button cameraBtn, upload;
     private ArrayAdapter<String> adapter;
     private ArrayList<String> pilok;
     private ProgressDialog progressDialog;
     private QuerySnapshot cities;
-
 
     private static final int REQUEST_IMAGE_CAPTURE = 1;
 
@@ -63,14 +61,17 @@ public class AddActivity extends AppCompatActivity {
 
         firebaseStorage = FirebaseStorage.getInstance();
         mStorageRef = firebaseStorage.getReference();
-        
+
         cameraBtn = findViewById(R.id.cameraBtn);
         lokasi = findViewById(R.id.lokasi);
         gambar = findViewById(R.id.gambar);
         ImageView imageView = findViewById(R.id.qrCode);
         progressDialog = new ProgressDialog(AddActivity.this);
         progressDialog.setTitle("Loading");
-        progressDialog.setMessage("Please");
+        progressDialog.setMessage("Please wait...");
+
+        // Inisialisasi tombol upload
+        upload = findViewById(R.id.upload);
 
         pilok = new ArrayList<>();
         pilok.add("Gedung Kuliah Bersama");
@@ -85,13 +86,14 @@ public class AddActivity extends AppCompatActivity {
                 MultiFormatWriter multiFormatWriter = new MultiFormatWriter();
 
                 try {
-                    BitMatrix bitMatrix = multiFormatWriter.encode(lokasi.getMatrix().toString(), BarcodeFormat.QR_CODE,300,300);
+                    BitMatrix bitMatrix = multiFormatWriter.encode(lokasi.getSelectedItem().toString(), BarcodeFormat.QR_CODE, 300, 300);
 
                     BarcodeEncoder barcodeEncoder = new BarcodeEncoder();
                     Bitmap bitmap = barcodeEncoder.createBitmap(bitMatrix);
 
                     imageView.setImageBitmap(bitmap);
-                }catch (WriterException e){
+                    uploadToFirebase(bitmap, lokasi.getSelectedItem().toString());
+                } catch (WriterException e) {
                     throw new RuntimeException(e);
                 }
             }
@@ -130,6 +132,7 @@ public class AddActivity extends AppCompatActivity {
             }
         });
     }
+
     private void getData() {
         progressDialog.show();
         db.collection("city").get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
@@ -187,7 +190,7 @@ public class AddActivity extends AppCompatActivity {
                 Bitmap thumbnail = (Bitmap) data.getExtras().get("data");
                 if (thumbnail != null) {
                     gambar.setImageBitmap(thumbnail);
-                    uploadToFirebase(thumbnail);
+                    uploadToFirebase(thumbnail, lokasi.getSelectedItem().toString());
                 } else {
                     Toast.makeText(this, "Gagal mengambil gambar, coba lagi.", Toast.LENGTH_SHORT).show();
                 }
@@ -195,7 +198,7 @@ public class AddActivity extends AppCompatActivity {
         }
     }
 
-    private void uploadToFirebase(Bitmap bitmap) {
+    private void uploadToFirebase(Bitmap bitmap, String lokasi) {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         bitmap.compress(Bitmap.CompressFormat.JPEG, 90, baos);
         byte[] data = baos.toByteArray();
@@ -205,11 +208,23 @@ public class AddActivity extends AppCompatActivity {
 
         imageRef.putBytes(data)
                 .addOnSuccessListener(taskSnapshot -> {
-                    Toast.makeText(AddActivity.this, "Sukses Upload", Toast.LENGTH_SHORT).show();
+                    saveLocationData(lokasi, imageRef.toString());
                 })
                 .addOnFailureListener(e -> {
                     Toast.makeText(AddActivity.this, "Gagal upload: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                     Log.e("FirebaseStorage", "Gagal upload: " + e.getMessage());
+                });
+    }
+
+    private void saveLocationData(String lokasi, String imageUrl) {
+        db.collection("locations")
+                .add(new LokasiModel(lokasi, imageUrl)) // Sesuaikan dengan kelas LokasiModel yang Anda miliki
+                .addOnSuccessListener(documentReference -> {
+                    Toast.makeText(AddActivity.this, "Sukses Upload", Toast.LENGTH_SHORT).show();
+                })
+                .addOnFailureListener(e -> {
+                    Toast.makeText(AddActivity.this, "Gagal upload lokasi: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                    Log.e("Firestore", "Gagal upload lokasi: " + e.getMessage());
                 });
     }
 }

@@ -6,7 +6,6 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".ParkingFragment">
 
-
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/tv_tampil"
         android:layout_width="match_parent"
