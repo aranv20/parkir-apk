@@ -20,7 +20,7 @@
         android:orientation="vertical">
 
         <com.google.android.material.card.MaterialCardView
-            android:id="@+id/cardView"
+
             android:layout_width="150dp"
             android:layout_height="150dp"
             android:backgroundTint="@color/white"
@@ -48,11 +48,12 @@
         </com.google.android.material.card.MaterialCardView>
 
         <Spinner
+
             android:id="@+id/lokasi"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginLeft="15dp"
-            android:layout_below="@id/cardView"
+            android:layout_below="@id/gambar"
             android:layout_marginTop="20dp"
             android:layout_marginRight="15dp"
             android:layout_marginBottom="15dp"
@@ -75,4 +76,6 @@
             android:layout_marginTop="30dp"
             android:scaleType="fitCenter"/>
     </LinearLayout>
+
+
 </RelativeLayout>
