@@ -29,6 +29,7 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.button.MaterialButton;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.mlkit.vision.barcode.BarcodeScanner;
 import com.google.mlkit.vision.barcode.BarcodeScannerOptions;
 import com.google.mlkit.vision.barcode.BarcodeScanning;
@@ -113,24 +114,50 @@ public class ScanActivity extends AppCompatActivity {
 
     private void detectResultFromImage() {
         try {
-            InputImage inputImage= InputImage.fromFilePath(this,imageUri);
-            Task<List<Barcode>> barodeResult = barcodeScanner.process(inputImage)
-                    .addOnSuccessListener(new OnSuccessListener<List<Barcode>>() {
-                        @Override
-                        public void onSuccess(List<Barcode> barcodes) {
-                            extractBarCodeQRCodeInfo(barcodes);
+            InputImage inputImage = InputImage.fromFilePath(this, imageUri);
+            Task<List<Barcode>> barcodeResult = barcodeScanner.process(inputImage)
+                    .addOnSuccessListener(barcodes -> {
+                        if (!barcodes.isEmpty()) {
+                            Barcode firstBarcode = barcodes.get(0);
+                            String qrCodeData = firstBarcode.getRawValue();
+
+                            // Setelah mendapatkan data QR code, gunakan data tersebut untuk mengakses Firebase
+                            fetchDataFromFirebase(qrCodeData);
+                        } else {
+                            Toast.makeText(ScanActivity.this, "No QR code detected", Toast.LENGTH_SHORT).show();
                         }
                     })
-                    .addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            Toast.makeText(ScanActivity.this,"Gagal scan"+e.getMessage(),Toast.LENGTH_SHORT).show();
-                        }
+                    .addOnFailureListener(e -> {
+                        Toast.makeText(ScanActivity.this, "Failed to scan: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                     });
-        }catch (Exception e){
-            Toast.makeText(this,"Gagal"+e.getMessage(),Toast.LENGTH_SHORT).show();
+        } catch (Exception e) {
+            Toast.makeText(this, "Failed: " + e.getMessage(), Toast.LENGTH_SHORT).show();
         }
     }
+
+    private void fetchDataFromFirebase(String qrCodeData) {
+        // Di sini, Anda perlu mengakses data dari Firebase berdasarkan qrCodeData.
+        // Misalnya, menggunakan Firestore.
+
+        // Contoh penggunaan Firestore:
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        db.collection("your_collection_path") // Ganti dengan nama koleksi di Firestore
+                .document(qrCodeData) // Ganti dengan ID dokumen berdasarkan qrCodeData
+                .get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        // Dokumen ditemukan
+                        String dataFromFirebase = documentSnapshot.getString("your_field_name"); // Ganti dengan nama field yang sesuai
+                        resultTv.setText("Data from Firebase: " + dataFromFirebase);
+                    } else {
+                        Toast.makeText(ScanActivity.this, "No data found in Firestore", Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Toast.makeText(ScanActivity.this, "Error fetching data from Firestore: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                });
+    }
+
 
     private void extractBarCodeQRCodeInfo(List<Barcode> barcodes) {
 
@@ -241,16 +268,19 @@ public class ScanActivity extends AppCompatActivity {
                 }
             }
     );
-    private void pickImageCamera(){
+    private void pickImageCamera() {
         ContentValues contentValues = new ContentValues();
-        contentValues.put(MediaStore.Images.Media.TITLE,"Sample Title");
-        contentValues.put(MediaStore.Images.Media.TITLE,"Sample Image Description");
+        contentValues.put(MediaStore.Images.Media.TITLE, "Sample Title");
+        contentValues.put(MediaStore.Images.Media.DESCRIPTION, "Sample Image Description");
 
-        imageUri = getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,contentValues);
+        imageUri = getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues);
         Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        intent.putExtra(MediaStore.EXTRA_OUTPUT,imageUri);
+        intent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
 
+        // Menggunakan ActivityResultLauncher untuk meluncurkan intent kamera
+        cameraActivityResultLauncher.launch(intent);
     }
+
     private final ActivityResultLauncher<Intent> cameraActivityResultLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
             new ActivityResultCallback<ActivityResult>() {

@@ -53,4 +53,14 @@ dependencies {
     implementation ("com.github.bumptech.glide:glide:4.12.0")
     annotationProcessor ("com.github.bumptech.glide:compiler:4.12.0")
     implementation ("com.squareup.picasso:picasso:2.71828")
+
+    implementation ("com.journeyapps:zxing-android-embedded:4.3.0")
+
+    coreLibraryDesugaring ("com.android.tools:desugar_jdk_libs:2.0.4")
+    implementation ("androidx.multidex:multidex:2.0.1")
+
+    implementation ("com.google.zxing:core:3.4.0")
+    implementation ("me.dm7.barcodescanner:zxing:1.9")
+    implementation ("com.google.firebase:firebase-database:23.0.0")
+
 }
