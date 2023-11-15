@@ -6,7 +6,9 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
@@ -45,7 +47,7 @@ public class AddActivity extends AppCompatActivity {
     private FirebaseStorage firebaseStorage;
     private StorageReference mStorageRef;
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
-    private ImageView gambar;
+    private ImageView gambar,qrCode;
     private Button cameraBtn, upload;
     private ArrayAdapter<String> adapter;
     private ArrayList<String> pilok;
@@ -65,24 +67,31 @@ public class AddActivity extends AppCompatActivity {
         cameraBtn = findViewById(R.id.cameraBtn);
         lokasi = findViewById(R.id.lokasi);
         gambar = findViewById(R.id.gambar);
+        qrCode = findViewById(R.id.qrCode);
         ImageView imageView = findViewById(R.id.qrCode);
         progressDialog = new ProgressDialog(AddActivity.this);
         progressDialog.setTitle("Loading");
         progressDialog.setMessage("Please wait...");
 
-        // Inisialisasi tombol upload
+
         upload = findViewById(R.id.upload);
 
-        pilok = new ArrayList<>();
-        pilok.add("Gedung Kuliah Bersama");
-        pilok.add("Gedung Seroja");
-        pilok.add("Gedung KHD");
-        pilok.add("Pos Gedung S");
-        pilok.add("Pos Jembatan");
+
 
         upload.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
+                String l = lokasi.getSelectedItem().toString();
+                String q = qrCode.getTransitionName().toString();
+                Bitmap qrGen = BitmapFactory.decodeResource(getResources(),R.id.qrCode);
+                Intent intent = new Intent(AddActivity.this, PrintActivity.class);
+
+                intent.putExtra("lokasi", (Parcelable) cities);
+                intent.putExtra("qrCOde",qrGen);
+                startActivity(intent);
+
+
                 MultiFormatWriter multiFormatWriter = new MultiFormatWriter();
 
                 try {
