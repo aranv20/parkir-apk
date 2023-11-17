@@ -5,19 +5,21 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
+    android:background="@color/white"
     tools:context=".PrintActivity">
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="30dp"
+        android:textColor="@color/black"
         android:text="Lokasi"
         android:id="@+id/lokasiPrint"
         android:textSize="20sp"
         android:textAlignment="center"/>
 
     <ImageView
-        android:id="@+id/codePrint"
+        android:id="@+id/qrCodeImageView"
         android:layout_marginTop="30dp"
         android:layout_gravity="center"
         android:layout_width="200dp"

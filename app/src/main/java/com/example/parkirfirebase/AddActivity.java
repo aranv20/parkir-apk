@@ -6,9 +6,7 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
@@ -47,12 +45,12 @@ public class AddActivity extends AppCompatActivity {
     private FirebaseStorage firebaseStorage;
     private StorageReference mStorageRef;
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
-    private ImageView gambar,qrCode;
+    private ImageView gambar, qrCode;
     private Button cameraBtn, upload;
     private ArrayAdapter<String> adapter;
-    private ArrayList<String> pilok;
+    private ArrayList<String> pilok = new ArrayList<>();
     private ProgressDialog progressDialog;
-    private QuerySnapshot cities;
+    private QuerySnapshot cities = null;
 
     private static final int REQUEST_IMAGE_CAPTURE = 1;
 
@@ -73,44 +71,7 @@ public class AddActivity extends AppCompatActivity {
         progressDialog.setTitle("Loading");
         progressDialog.setMessage("Please wait...");
 
-
         upload = findViewById(R.id.upload);
-
-
-
-        upload.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                String l = lokasi.getSelectedItem().toString();
-                String q = qrCode.getTransitionName().toString();
-                Bitmap qrGen = BitmapFactory.decodeResource(getResources(),R.id.qrCode);
-                Intent intent = new Intent(AddActivity.this, PrintActivity.class);
-
-                intent.putExtra("lokasi", (Parcelable) cities);
-                intent.putExtra("qrCOde",qrGen);
-                startActivity(intent);
-
-
-                MultiFormatWriter multiFormatWriter = new MultiFormatWriter();
-
-                try {
-                    BitMatrix bitMatrix = multiFormatWriter.encode(lokasi.getSelectedItem().toString(), BarcodeFormat.QR_CODE, 300, 300);
-
-                    BarcodeEncoder barcodeEncoder = new BarcodeEncoder();
-                    Bitmap bitmap = barcodeEncoder.createBitmap(bitMatrix);
-
-                    imageView.setImageBitmap(bitmap);
-                    uploadToFirebase(bitmap, lokasi.getSelectedItem().toString());
-                } catch (WriterException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-        });
-
-        adapter = new ArrayAdapter<>(getApplicationContext(), android.R.layout.simple_spinner_dropdown_item, pilok);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        lokasi.setAdapter(adapter);
 
         lokasi.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
@@ -128,7 +89,7 @@ public class AddActivity extends AppCompatActivity {
             }
         });
 
-        getData();
+        getData(); // Pastikan getData dijalankan sebelum setAdapter
 
         cameraBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -137,6 +98,34 @@ public class AddActivity extends AppCompatActivity {
                     ActivityCompat.requestPermissions(AddActivity.this, new String[]{Manifest.permission.CAMERA}, REQUEST_IMAGE_CAPTURE);
                 } else {
                     startCamera();
+                }
+            }
+        });
+
+        upload.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String lokasiString = lokasi.getSelectedItem().toString();
+
+                try {
+                    BitMatrix bitMatrix = new MultiFormatWriter().encode(lokasiString, BarcodeFormat.QR_CODE, 300, 300);
+                    BarcodeEncoder barcodeEncoder = new BarcodeEncoder();
+                    Bitmap bitmap = barcodeEncoder.createBitmap(bitMatrix);
+
+                    // Simpan URL gambar QR Code jika diperlukan
+                    String qrCodeImageUrl = uploadToFirebase(bitmap, lokasiString);
+
+                    Log.d("PrintActivity", "Menerima URL Gambar QR Code: " + qrCodeImageUrl);
+
+                    Intent intent = new Intent(AddActivity.this, PrintActivity.class);
+                    intent.putExtra("lokasi", lokasiString);
+                    intent.putExtra("qrCodeImageUrl", qrCodeImageUrl);
+                    startActivity(intent);
+
+
+                    imageView.setImageBitmap(bitmap);
+                } catch (WriterException e) {
+                    throw new RuntimeException(e);
                 }
             }
         });
@@ -156,6 +145,9 @@ public class AddActivity extends AppCompatActivity {
                         for (DocumentSnapshot doc : queryDocumentSnapshots) {
                             pilok.add(doc.getString("name"));
                         }
+                        adapter = new ArrayAdapter<>(getApplicationContext(), android.R.layout.simple_spinner_dropdown_item, pilok);
+                        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                        lokasi.setAdapter(adapter);
                         adapter.notifyDataSetChanged();
                     } else {
                         Toast.makeText(getApplicationContext(), "Data tidak tersedia", Toast.LENGTH_SHORT).show();
@@ -194,20 +186,24 @@ public class AddActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (resultCode == Activity.RESULT_OK && requestCode == REQUEST_IMAGE_CAPTURE) {
-            if (data != null && data.getExtras() != null) {
-                Bitmap thumbnail = (Bitmap) data.getExtras().get("data");
-                if (thumbnail != null) {
-                    gambar.setImageBitmap(thumbnail);
-                    uploadToFirebase(thumbnail, lokasi.getSelectedItem().toString());
-                } else {
-                    Toast.makeText(this, "Gagal mengambil gambar, coba lagi.", Toast.LENGTH_SHORT).show();
-                }
+        if (resultCode == Activity.RESULT_OK) {
+            if (requestCode == REQUEST_IMAGE_CAPTURE && data != null && data.getExtras() != null) {
+                handleCameraResult(data);
             }
         }
     }
 
-    private void uploadToFirebase(Bitmap bitmap, String lokasi) {
+    private void handleCameraResult(Intent data) {
+        Bitmap thumbnail = (Bitmap) data.getExtras().get("data");
+        if (thumbnail != null) {
+            gambar.setImageBitmap(thumbnail);
+            uploadToFirebase(thumbnail, lokasi.getSelectedItem().toString());
+        } else {
+            Toast.makeText(this, "Gagal mengambil gambar, coba lagi.", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private String uploadToFirebase(Bitmap bitmap, String lokasi) {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         bitmap.compress(Bitmap.CompressFormat.JPEG, 90, baos);
         byte[] data = baos.toByteArray();
@@ -223,6 +219,9 @@ public class AddActivity extends AppCompatActivity {
                     Toast.makeText(AddActivity.this, "Gagal upload: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                     Log.e("FirebaseStorage", "Gagal upload: " + e.getMessage());
                 });
+
+        // Kembalikan URL gambar QR Code
+        return imageRef.toString();
     }
 
     private void saveLocationData(String lokasi, String imageUrl) {
