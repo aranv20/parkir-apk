@@ -1,6 +1,7 @@
 package com.example.parkirfirebase;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,8 +12,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,7 +20,7 @@ public class HistoryFragment extends Fragment {
 
     private RecyclerView recyclerView;
     private ImageAdapter imageAdapter;
-    private List<String> imageUrlList;
+    private List<ImageModel> imageList;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -29,50 +28,41 @@ public class HistoryFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_history, container, false);
 
         recyclerView = view.findViewById(R.id.recycler_view);
-        imageUrlList = new ArrayList<>();
-        imageAdapter = new ImageAdapter(imageUrlList);
+        imageList = new ArrayList<>();
+        imageAdapter = new ImageAdapter(imageList);
 
         recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
         recyclerView.setAdapter(imageAdapter);
-
-        // Inisialisasi FirebaseStorage
-        FirebaseStorage storage = FirebaseStorage.getInstance();
-        StorageReference storageReference = storage.getReference().child("images");
 
         // Inisialisasi Firestore
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
         // Ambil data dari Firestore
-        db.collection("locations")
+        db.collection("parking")
                 .get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
                         for (QueryDocumentSnapshot document : task.getResult()) {
-                            // Dapatkan URL dari Firestore dan tambahkan ke daftar
-                            String imageUrl = document.getString("imageUrl");
-                            imageUrlList.add(imageUrl);
-                            imageAdapter.notifyDataSetChanged();
+                            // Periksa apakah dokumen memiliki field imageUrl dan namaLokasi
+                            if (document.contains("imageUrl") && document.contains("namaLokasi")) {
+                                String imageUrl = document.getString("imageUrl");
+                                String namaLokasi = document.getString("namaLokasi");
+
+                                // Tambahkan ke daftar hanya jika kedua field ada
+                                ImageModel imageModel = new ImageModel(imageUrl, namaLokasi);
+                                imageList.add(imageModel);
+                                imageAdapter.notifyDataSetChanged();
+                            } else {
+                                // Tangani jika field tidak lengkap
+                                // Misalnya, log atau tampilkan pesan kesalahan
+                                // atau tambahkan langkah-langkah yang sesuai.
+                            }
                         }
                     } else {
                         // Tangani kesalahan
+                        Log.e("HistoryFragment", "Error getting documents: ", task.getException());
                     }
                 });
-
-        // Ambil semua gambar dari Firebase Storage
-        storageReference.listAll().addOnSuccessListener(listResult -> {
-            for (StorageReference item : listResult.getItems()) {
-                // Untuk setiap gambar dalam folder, dapatkan URL dan tambahkan ke daftar
-                item.getDownloadUrl().addOnSuccessListener(uri -> {
-                    imageUrlList.add(uri.toString());
-                    imageAdapter.notifyDataSetChanged();
-                }).addOnFailureListener(exception -> {
-                    // Tangani kesalahan untuk gambar tertentu
-                });
-            }
-        }).addOnFailureListener(exception -> {
-            // Tangani kesalahan untuk penulisan folder
-        });
-
         return view;
     }
 }

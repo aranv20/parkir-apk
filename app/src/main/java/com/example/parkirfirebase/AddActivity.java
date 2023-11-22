@@ -225,7 +225,7 @@ public class AddActivity extends AppCompatActivity {
     }
 
     private void saveLocationData(String lokasi, String imageUrl) {
-        db.collection("locations")
+        db.collection("parking")
                 .add(new LokasiModel(lokasi, imageUrl)) // Sesuaikan dengan kelas LokasiModel yang Anda miliki
                 .addOnSuccessListener(documentReference -> {
                     Toast.makeText(AddActivity.this, "Sukses Upload", Toast.LENGTH_SHORT).show();

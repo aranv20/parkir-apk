@@ -16,6 +16,6 @@
     <string name="upload">Upload</string>
     <string name="hello">Dashboard</string>
     <string name="ara">Ara</string>
-    <string name="heroes_name">nama</string>
-    <string name="description">description\n</string>
+    <string name="heroes_name">Lokasi</string>
+    <string name="description">imgUrl</string>
 </resources>

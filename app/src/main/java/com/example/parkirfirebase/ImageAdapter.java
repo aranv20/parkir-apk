@@ -4,6 +4,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -12,38 +13,45 @@ import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
-public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> {
+public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHolder> {
 
-    private List<String> imageUrlList;
+    private List<ImageModel> imageList;
 
-    public ImageAdapter(List<String> imageUrlList) {
-        this.imageUrlList = imageUrlList;
+    public ImageAdapter(List<ImageModel> imageList) {
+        this.imageList = imageList;
     }
 
     @NonNull
     @Override
-    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public ImageViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_image, parent, false);
-        return new ViewHolder(view);
+        return new ImageViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        String imageUrl = imageUrlList.get(position);
-        Picasso.get().load(imageUrl).into(holder.imageView);
+    public void onBindViewHolder(@NonNull ImageViewHolder holder, int position) {
+        ImageModel imageModel = imageList.get(position);
+
+        // Set data ke tampilan di dalam ViewHolder
+        holder.namaLokasiTextView.setText(imageModel.getNamaLokasi());
+
+        // Menggunakan Picasso untuk memuat gambar dari URL
+        Picasso.get().load(imageModel.getImageUrl()).into(holder.imageView);
     }
 
     @Override
     public int getItemCount() {
-        return imageUrlList.size();
+        return imageList.size();
     }
 
-    public static class ViewHolder extends RecyclerView.ViewHolder {
+    public static class ImageViewHolder extends RecyclerView.ViewHolder {
         ImageView imageView;
+        TextView namaLokasiTextView;
 
-        public ViewHolder(@NonNull View itemView) {
+        public ImageViewHolder(@NonNull View itemView) {
             super(itemView);
             imageView = itemView.findViewById(R.id.iv_image);
+            namaLokasiTextView = itemView.findViewById(R.id.lokasi);
         }
     }
 }
