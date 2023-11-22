@@ -1,5 +1,7 @@
 package com.example.parkirfirebase;
 
+import android.graphics.drawable.Drawable;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -7,9 +9,14 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.squareup.picasso.Picasso;
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.DataSource;
+import com.bumptech.glide.load.engine.GlideException;
+import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.target.Target;
 
 import java.util.List;
 
@@ -35,8 +42,25 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHol
         // Set data ke tampilan di dalam ViewHolder
         holder.namaLokasiTextView.setText(imageModel.getNamaLokasi());
 
-        // Menggunakan Picasso untuk memuat gambar dari URL
-        Picasso.get().load(imageModel.getImageUrl()).into(holder.imageView);
+        // Menggunakan Glide untuk memuat gambar dari URL
+        Glide.with(holder.itemView.getContext())
+                .load(imageModel.getImageUrl())
+                .listener(new RequestListener<Drawable>() {
+                    @Override
+                    public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
+                        // Handle the error here.
+                        Log.e("Glide", "Load failed", e);
+                        e.logRootCauses("Glide");
+                        return false;
+                    }
+
+                    @Override
+                    public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
+                        // Image loaded successfully.
+                        return false;
+                    }
+                })
+                .into(holder.imageView);
     }
 
     @Override
@@ -51,7 +75,7 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHol
         public ImageViewHolder(@NonNull View itemView) {
             super(itemView);
             imageView = itemView.findViewById(R.id.iv_image);
-            namaLokasiTextView = itemView.findViewById(R.id.lokasi);
+            namaLokasiTextView = itemView.findViewById(R.id.namaLokasi);
         }
     }
 }

@@ -63,6 +63,7 @@ public class HistoryFragment extends Fragment {
                         Log.e("HistoryFragment", "Error getting documents: ", task.getException());
                     }
                 });
+
         return view;
     }
 }

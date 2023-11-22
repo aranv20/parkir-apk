@@ -209,11 +209,18 @@ public class AddActivity extends AppCompatActivity {
         byte[] data = baos.toByteArray();
 
         String timestamp = String.valueOf(System.currentTimeMillis());
-        StorageReference imageRef = mStorageRef.child("images/" + timestamp + ".jpg");
+        StorageReference imageRef = mStorageRef.child("images/" + timestamp + ".jpeg");
 
         imageRef.putBytes(data)
                 .addOnSuccessListener(taskSnapshot -> {
-                    saveLocationData(lokasi, imageRef.toString());
+                    // Mendapatkan URL unduhan setelah berhasil upload
+                    imageRef.getDownloadUrl().addOnSuccessListener(uri -> {
+                        // Menggunakan URL HTTPS untuk menyimpan data lokasi
+                        saveLocationData(lokasi, uri.toString());
+                    }).addOnFailureListener(e -> {
+                        Toast.makeText(AddActivity.this, "Gagal mendapatkan URL: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                        Log.e("FirebaseStorage", "Gagal mendapatkan URL: " + e.getMessage());
+                    });
                 })
                 .addOnFailureListener(e -> {
                     Toast.makeText(AddActivity.this, "Gagal upload: " + e.getMessage(), Toast.LENGTH_SHORT).show();
