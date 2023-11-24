@@ -23,6 +23,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -52,7 +53,6 @@ public class AddActivity extends AppCompatActivity {
     private ProgressDialog progressDialog;
     private QuerySnapshot cities = null;
     private Bitmap capturedImage; // Menyimpan gambar yang diambil dari kamera
-
     private static final int REQUEST_IMAGE_CAPTURE = 1;
 
     @Override
@@ -110,11 +110,9 @@ public class AddActivity extends AppCompatActivity {
                     String lokasiString = lokasi.getSelectedItem().toString();
 
                     try {
-                        // Menghasilkan timestamp untuk gambar
-                        String timestamp = String.valueOf(System.currentTimeMillis());
-
+                        String imageUrl = uploadToFirebase(capturedImage, lokasiString);
                         // Menggabungkan informasi dari spinner dengan timestamp
-                        String combinedInfo = lokasiString + "_" + timestamp;
+                        String combinedInfo = lokasiString + "_" + imageUrl;
 
                         // Menghasilkan QR code dari informasi yang digabungkan
                         BitMatrix bitMatrix = new MultiFormatWriter().encode(combinedInfo, BarcodeFormat.QR_CODE, 300, 300);
@@ -122,21 +120,19 @@ public class AddActivity extends AppCompatActivity {
                         Bitmap bitmap = barcodeEncoder.createBitmap(bitMatrix);
 
                         // Simpan URL gambar QR Code jika diperlukan
-                        String qrCodeImageUrl = uploadToFirebase(capturedImage, lokasiString);
+                       // String qrCodeImageUrl = uploadToFirebase(capturedImage, lokasiString);
 
-                        Log.d("PrintActivity", "Menerima URL Gambar QR Code: " + qrCodeImageUrl);
+                        //Log.d("AddActivity", "Menerima URL Gambar QR Code: " + qrCodeImageUrl);
 
-                        Intent intent = new Intent(AddActivity.this, PrintActivity.class);
-                        intent.putExtra("lokasi", lokasiString);
-                        intent.putExtra("qrCodeImageUrl", qrCodeImageUrl);
-                        startActivity(intent);
 
                         imageView.setImageBitmap(bitmap);
+
                     } catch (WriterException e) {
-                        throw new RuntimeException(e);
+                        e.printStackTrace();
+                        Toast.makeText(AddActivity.this, "Gagal membuat QR code: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                     }
                 } else {
-                    Toast.makeText(AddActivity.this, "Ambil gambar terlebih dahulu sebelum menggenerate QR code.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(AddActivity.this, "Ambil gambar terlebih dahulu sebelum generate QR code.", Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -244,4 +240,5 @@ public class AddActivity extends AppCompatActivity {
                     Log.e("Firestore", "Gagal upload lokasi: " + e.getMessage());
                 });
     }
+
 }

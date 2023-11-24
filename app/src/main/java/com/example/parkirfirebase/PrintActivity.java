@@ -2,11 +2,9 @@ package com.example.parkirfirebase;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.widget.ImageView;
+import android.util.Log;
 
 import androidx.appcompat.app.AppCompatActivity;
-
-import com.squareup.picasso.Picasso;
 
 public class PrintActivity extends AppCompatActivity {
 
@@ -20,9 +18,7 @@ public class PrintActivity extends AppCompatActivity {
             String lokasi = intent.getStringExtra("lokasi");
             String qrCodeImageUrl = intent.getStringExtra("qrCodeImageUrl");
 
-            // Tampilkan gambar QR Code menggunakan Picasso atau library lainnya
-            ImageView qrCodeImageView = findViewById(R.id.qrCodeImageView);
-            Picasso.get().load(qrCodeImageUrl).into(qrCodeImageView);
+            Log.d("PrintActivity", "Menerima Intent - Lokasi: " + lokasi + ", QR Code Image URL: " + qrCodeImageUrl);
 
             // Anda dapat menambahkan logika lainnya di sini berdasarkan kebutuhan
         }
