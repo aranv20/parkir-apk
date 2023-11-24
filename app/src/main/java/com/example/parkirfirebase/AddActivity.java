@@ -51,6 +51,7 @@ public class AddActivity extends AppCompatActivity {
     private ArrayList<String> pilok = new ArrayList<>();
     private ProgressDialog progressDialog;
     private QuerySnapshot cities = null;
+    private Bitmap capturedImage; // Menyimpan gambar yang diambil dari kamera
 
     private static final int REQUEST_IMAGE_CAPTURE = 1;
 
@@ -105,27 +106,37 @@ public class AddActivity extends AppCompatActivity {
         upload.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String lokasiString = lokasi.getSelectedItem().toString();
+                if (capturedImage != null) {
+                    String lokasiString = lokasi.getSelectedItem().toString();
 
-                try {
-                    BitMatrix bitMatrix = new MultiFormatWriter().encode(lokasiString, BarcodeFormat.QR_CODE, 300, 300);
-                    BarcodeEncoder barcodeEncoder = new BarcodeEncoder();
-                    Bitmap bitmap = barcodeEncoder.createBitmap(bitMatrix);
+                    try {
+                        // Menghasilkan timestamp untuk gambar
+                        String timestamp = String.valueOf(System.currentTimeMillis());
 
-                    // Simpan URL gambar QR Code jika diperlukan
-                    String qrCodeImageUrl = uploadToFirebase(bitmap, lokasiString);
+                        // Menggabungkan informasi dari spinner dengan timestamp
+                        String combinedInfo = lokasiString + "_" + timestamp;
 
-                    Log.d("PrintActivity", "Menerima URL Gambar QR Code: " + qrCodeImageUrl);
+                        // Menghasilkan QR code dari informasi yang digabungkan
+                        BitMatrix bitMatrix = new MultiFormatWriter().encode(combinedInfo, BarcodeFormat.QR_CODE, 300, 300);
+                        BarcodeEncoder barcodeEncoder = new BarcodeEncoder();
+                        Bitmap bitmap = barcodeEncoder.createBitmap(bitMatrix);
 
-                    Intent intent = new Intent(AddActivity.this, PrintActivity.class);
-                    intent.putExtra("lokasi", lokasiString);
-                    intent.putExtra("qrCodeImageUrl", qrCodeImageUrl);
-                    startActivity(intent);
+                        // Simpan URL gambar QR Code jika diperlukan
+                        String qrCodeImageUrl = uploadToFirebase(capturedImage, lokasiString);
 
+                        Log.d("PrintActivity", "Menerima URL Gambar QR Code: " + qrCodeImageUrl);
 
-                    imageView.setImageBitmap(bitmap);
-                } catch (WriterException e) {
-                    throw new RuntimeException(e);
+                        Intent intent = new Intent(AddActivity.this, PrintActivity.class);
+                        intent.putExtra("lokasi", lokasiString);
+                        intent.putExtra("qrCodeImageUrl", qrCodeImageUrl);
+                        startActivity(intent);
+
+                        imageView.setImageBitmap(bitmap);
+                    } catch (WriterException e) {
+                        throw new RuntimeException(e);
+                    }
+                } else {
+                    Toast.makeText(AddActivity.this, "Ambil gambar terlebih dahulu sebelum menggenerate QR code.", Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -188,18 +199,9 @@ public class AddActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == Activity.RESULT_OK) {
             if (requestCode == REQUEST_IMAGE_CAPTURE && data != null && data.getExtras() != null) {
-                handleCameraResult(data);
+                capturedImage = (Bitmap) data.getExtras().get("data");
+                gambar.setImageBitmap(capturedImage);
             }
-        }
-    }
-
-    private void handleCameraResult(Intent data) {
-        Bitmap thumbnail = (Bitmap) data.getExtras().get("data");
-        if (thumbnail != null) {
-            gambar.setImageBitmap(thumbnail);
-            uploadToFirebase(thumbnail, lokasi.getSelectedItem().toString());
-        } else {
-            Toast.makeText(this, "Gagal mengambil gambar, coba lagi.", Toast.LENGTH_SHORT).show();
         }
     }
 
