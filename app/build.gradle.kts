@@ -36,7 +36,7 @@ android {
 }
 
 dependencies {
-
+    implementation ("com.google.android.gms:play-services-vision:20.1.3")
     implementation ("com.squareup.picasso:picasso:2.71828")
     implementation("androidx.appcompat:appcompat:1.6.1")
     implementation("com.google.android.material:material:1.10.0")
