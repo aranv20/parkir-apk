@@ -120,7 +120,7 @@ public class AddActivity extends AppCompatActivity {
                         Bitmap bitmap = barcodeEncoder.createBitmap(bitMatrix);
 
                         imageView.setImageBitmap(bitmap);
-
+                        
                     } catch (WriterException e) {
                         e.printStackTrace();
                         Toast.makeText(AddActivity.this, "Gagal membuat QR code: " + e.getMessage(), Toast.LENGTH_SHORT).show();
