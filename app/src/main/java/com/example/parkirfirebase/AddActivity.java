@@ -119,12 +119,6 @@ public class AddActivity extends AppCompatActivity {
                         BarcodeEncoder barcodeEncoder = new BarcodeEncoder();
                         Bitmap bitmap = barcodeEncoder.createBitmap(bitMatrix);
 
-                        // Simpan URL gambar QR Code jika diperlukan
-                       // String qrCodeImageUrl = uploadToFirebase(capturedImage, lokasiString);
-
-                        //Log.d("AddActivity", "Menerima URL Gambar QR Code: " + qrCodeImageUrl);
-
-
                         imageView.setImageBitmap(bitmap);
 
                     } catch (WriterException e) {

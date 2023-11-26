@@ -26,6 +26,7 @@
             android:exported="false" />
         <activity
             android:name=".ScanActivity"
+            android:screenOrientation="portrait"
             android:exported="false" />
         <activity
             android:name=".SplashActivity"
@@ -36,6 +37,10 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".CustomScannerActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
         <activity
             android:name=".AddActivity"
             android:exported="false" />

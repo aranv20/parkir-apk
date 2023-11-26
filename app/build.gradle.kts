@@ -36,6 +36,10 @@ android {
 }
 
 dependencies {
+    implementation ("me.dm7.barcodescanner:zxing:1.9.13'")
+    implementation ("com.budiyev.android:code-scanner:2.1.0")
+    implementation ("com.google.zxing:core:3.4.1")
+    implementation ("com.journeyapps:zxing-android-embedded:4.0.0")
     implementation ("com.google.android.gms:play-services-vision:20.1.3")
     implementation ("com.squareup.picasso:picasso:2.71828")
     implementation("androidx.appcompat:appcompat:1.6.1")

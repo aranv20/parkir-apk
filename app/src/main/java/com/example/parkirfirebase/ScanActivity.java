@@ -1,109 +1,91 @@
 package com.example.parkirfirebase;
 
+import android.Manifest;
 import android.content.Intent;
-import android.graphics.Bitmap;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.util.SparseArray;
+import android.util.Log;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
-import com.google.android.gms.vision.Frame;
-import com.google.android.gms.vision.barcode.Barcode;
-import com.google.android.gms.vision.barcode.BarcodeDetector;
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.zxing.integration.android.IntentIntegrator;
+import com.google.zxing.integration.android.IntentResult;
+import com.journeyapps.barcodescanner.CaptureActivity;
 
-public class ScanActivity extends AppCompatActivity {
+public class ScanActivity extends CaptureActivity {
 
-    private BarcodeDetector barcodeDetector;
-    private FirebaseFirestore db;
+    private static final String TAG = ScanActivity.class.getSimpleName();
+    private static final int CAMERA_PERMISSION_REQUEST_CODE = 200;
+    private TextView scannedDataTextView;
 
     @Override
-    protected void onCreate(@Nullable Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_scan);
 
-        // Inisialisasi Firebase Firestore
-        db = FirebaseFirestore.getInstance();
+        scannedDataTextView = findViewById(R.id.scanned_data_textview);
 
-        // Inisialisasi BarcodeDetector
-        barcodeDetector = new BarcodeDetector.Builder(this)
-                .setBarcodeFormats(Barcode.QR_CODE)
-                .build();
-
-        if (!barcodeDetector.isOperational()) {
-            Toast.makeText(this, "Barcode detector tidak dapat diinisialisasi. Pastikan Anda terhubung ke internet.", Toast.LENGTH_SHORT).show();
-            finish();
+        // Check camera permission
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
+                != PackageManager.PERMISSION_GRANTED) {
+            // Request camera permission if not granted
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.CAMERA},
+                    CAMERA_PERMISSION_REQUEST_CODE);
+        } else {
+            // Start QR Code scan if camera permission is granted
+            startQRCodeScan();
         }
-
-        // Mulai pemindaian
-        startScanning();
     }
 
-    private void startScanning() {
-        // Gunakan kamera untuk pemindaian QR code
-        Intent intent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
-        startActivityForResult(intent, 0);
+    private void startQRCodeScan() {
+        IntentIntegrator integrator = new IntentIntegrator(this);
+        integrator.setOrientationLocked(true); // Lock the camera orientation to portrait
+        integrator.setPrompt("Arahkan kamera ke QR Code");
+        integrator.initiateScan();
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if (requestCode == 0 && resultCode == RESULT_OK && data != null) {
-            // Mengambil gambar dari hasil kamera
-            BarcodeDetector barcodeDetector = new BarcodeDetector.Builder(this)
-                    .setBarcodeFormats(Barcode.QR_CODE)
-                    .build();
+        // Get QR Code scan result
+        IntentResult result = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
+        if (result != null) {
+            if (result.getContents() == null) {
+                // Handle canceled scan
+                Toast.makeText(this, "Pemindaian dibatalkan", Toast.LENGTH_SHORT).show();
+            } else {
+                // Handle successful scan
+                String scannedData = result.getContents();
+                Log.d(TAG, "Hasil Pemindaian: " + scannedData);
+                Toast.makeText(this, "Hasil Pemindaian: " + scannedData, Toast.LENGTH_SHORT).show();
 
-            if (!barcodeDetector.isOperational()) {
-                Toast.makeText(this, "Barcode detector tidak dapat diinisialisasi. Pastikan Anda terhubung ke internet.", Toast.LENGTH_SHORT).show();
-                finish();
-            }
-
-            if (data.getExtras() != null) {
-                Frame frame = new Frame.Builder().setBitmap((Bitmap) data.getExtras().get("data")).build();
-                SparseArray<Barcode> barcodes = barcodeDetector.detect(frame);
-
-                if (barcodes.size() > 0) {
-                    // QR code ditemukan, ambil nilai teks
-                    String qrCodeValue = barcodes.valueAt(0).displayValue;
-
-                    // Ambil data dari Firestore berdasarkan nilai QR code
-                    getDataFromFirestore(qrCodeValue);
-                } else {
-                    Toast.makeText(this, "QR code tidak terdeteksi", Toast.LENGTH_SHORT).show();
-                    finish();
-                }
+                // Set the scanned data to the TextView
+                scannedDataTextView.setText(scannedData);
             }
         }
     }
 
-    private void getDataFromFirestore(String qrCodeValue) {
-        // Koneksi ke Firestore dan ambil data berdasarkan nilai QR code
-        db.collection("parking")
-                .whereEqualTo("qrCodeValue", qrCodeValue) // Sesuaikan dengan struktur data Anda
-                .get()
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful() && task.getResult() != null && !task.getResult().isEmpty()) {
-                        // Data ditemukan, ambil nilai dari dokumen pertama
-                        DocumentSnapshot document = task.getResult().getDocuments().get(0);
-                        String lokasi = document.getString("lokasi");
-                        String imageUrl = document.getString("imageUrl");
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 
-                        // Lakukan sesuatu dengan data yang diambil
-                        // Contoh: Tampilkan data di TextView
-                        TextView textView = findViewById(R.id.resultTv);
-                        textView.setText("Lokasi: " + lokasi + "\nImage URL: " + imageUrl);
-                    } else {
-                        Toast.makeText(ScanActivity.this, "Data tidak ditemukan di Firestore", Toast.LENGTH_SHORT).show();
-                    }
-
-                    // Selesaikan aktivitas setelah mendapatkan data
-                    finish();
-                });
+        // Handle camera permission response
+        if (requestCode == CAMERA_PERMISSION_REQUEST_CODE) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                // Start QR Code scan if camera permission is granted
+                startQRCodeScan();
+            } else {
+                // Display message if camera permission is denied
+                Toast.makeText(this, "Izin kamera dibutuhkan untuk melakukan pemindaian QR Code", Toast.LENGTH_SHORT).show();
+                finish();
+            }
+        }
     }
 }
