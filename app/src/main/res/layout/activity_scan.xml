@@ -16,6 +16,7 @@
         android:layout_marginTop="30dp"
         android:textColor="@color/black"
         android:text="Scan Result"
+        android:textStyle="bold"
         android:textSize="20sp"
         android:textAlignment="center"/>
 
