@@ -7,7 +7,7 @@
     <string name="click_to_login">Sudah punya akun? Login sekarang!</string>
     <string name="click_to_register">Belum punya akun? Daftar sekarang!</string>
     <string name="logout">Logout</string>
-    <!-- TODO: Remove or change this placeholder text -->
+
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="home">Home</string>
     <string name="parking">Parking</string>
@@ -16,6 +16,15 @@
     <string name="upload">Upload</string>
     <string name="hello">Dashboard</string>
     <string name="ara">Ara</string>
+    <string name="thumb">Thumbs</string>
     <string name="heroes_name">Lokasi</string>
     <string name="description">imgUrl</string>
+    <string-array name="menu_spinner">
+        <item>Pilih Lokasi</item>
+        <item>Gedung Kuliah Bersama</item>
+        <item>Gedung Seroja</item>
+        <item>Gedung KHD</item>
+        <item>Pos Gedung S</item>
+        <item>Pos Jembatan</item>
+    </string-array>
 </resources>

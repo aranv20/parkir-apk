@@ -6,12 +6,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".ParkingFragment">
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/tv_tampil"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        tools:listitem="@layout/list_item"
-        android:layout_marginTop="10dp"/>
+
+
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/btn_tambah"
@@ -24,6 +20,19 @@
         android:layout_marginRight="20dp"
         android:layout_marginBottom="80dp"
         app:srcCompat="@drawable/baseline_add_24" />
+
+    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+        android:id="@+id/btn_laporan"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginLeft="20dp"
+        android:layout_marginBottom="80dp"
+        android:backgroundTint="@color/lavender"
+        android:textColor="@color/white"
+        android:text="Laporan"
+        android:textAlignment="center"/>
 
 
 </RelativeLayout>

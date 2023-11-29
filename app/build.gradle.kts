@@ -64,4 +64,6 @@ dependencies {
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
     annotationProcessor ("com.github.bumptech.glide:compiler:4.14.2")
     coreLibraryDesugaring ("com.android.tools:desugar_jdk_libs:2.0.4")
+
+
 }

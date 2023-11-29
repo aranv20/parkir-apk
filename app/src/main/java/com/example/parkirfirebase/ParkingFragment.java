@@ -9,6 +9,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 
@@ -17,6 +18,7 @@ public class ParkingFragment extends Fragment {
 
     MainActivity mainActivity;
     FloatingActionButton floatingActionButton;
+    ExtendedFloatingActionButton extendedFloatingActionButton;
 
 
     public ParkingFragment() {
@@ -28,6 +30,7 @@ public class ParkingFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_parking, container, false);
         mainActivity = (MainActivity) getActivity();
         floatingActionButton = view.findViewById(R.id.btn_tambah);
+        extendedFloatingActionButton = view.findViewById(R.id.btn_laporan);
         floatingActionButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -36,6 +39,23 @@ public class ParkingFragment extends Fragment {
 
             }
         });
+
+        extendedFloatingActionButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Buat instance dari LaporanFragment
+                LaporanFragment laporanFragment = new LaporanFragment();
+
+                // Memulai transaksi fragment
+                requireActivity().getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.frame_layout, laporanFragment)  // Ganti R.id.fragment_container dengan ID container fragment Anda
+                        .addToBackStack(null)
+                        .commit();
+            }
+        });
+
+
+
     return view;
     }
 }
