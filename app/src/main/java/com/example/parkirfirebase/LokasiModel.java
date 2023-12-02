@@ -4,10 +4,6 @@ public class LokasiModel {
     private String namaLokasi;
     private String imageUrl;
 
-    public LokasiModel() {
-        // Diperlukan oleh Firebase untuk deserialisasi objek
-    }
-
     public LokasiModel(String namaLokasi, String imageUrl) {
         this.namaLokasi = namaLokasi;
         this.imageUrl = imageUrl;

@@ -2,24 +2,20 @@ package com.example.parkirfirebase;
 
 import android.content.Intent;
 import android.os.Bundle;
-
-import androidx.fragment.app.Fragment;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.fragment.app.Fragment;
+
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
-
 public class ParkingFragment extends Fragment {
-
 
     MainActivity mainActivity;
     FloatingActionButton floatingActionButton;
     ExtendedFloatingActionButton extendedFloatingActionButton;
-
 
     public ParkingFragment() {
         // Required empty public constructor
@@ -31,12 +27,12 @@ public class ParkingFragment extends Fragment {
         mainActivity = (MainActivity) getActivity();
         floatingActionButton = view.findViewById(R.id.btn_tambah);
         extendedFloatingActionButton = view.findViewById(R.id.btn_laporan);
+
         floatingActionButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(getActivity(), AddActivity.class);
                 startActivity(intent);
-
             }
         });
 
@@ -48,14 +44,11 @@ public class ParkingFragment extends Fragment {
 
                 // Memulai transaksi fragment
                 requireActivity().getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.frame_layout, laporanFragment)  // Ganti R.id.fragment_container dengan ID container fragment Anda
+                        .replace(R.id.frame_layout, laporanFragment)
                         .addToBackStack(null)
                         .commit();
             }
         });
-
-
-
-    return view;
+        return view;
     }
 }

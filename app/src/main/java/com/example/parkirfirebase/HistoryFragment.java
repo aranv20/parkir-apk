@@ -34,16 +34,15 @@ public class HistoryFragment extends Fragment {
         recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
         recyclerView.setAdapter(imageAdapter);
 
-        // Inisialisasi Firestore
+
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
-        // Ambil data dari Firestore
+
         db.collection("parking")
                 .get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
                         for (QueryDocumentSnapshot document : task.getResult()) {
-                            // Periksa apakah dokumen memiliki field imageUrl dan namaLokasi
                             if (document.contains("imageUrl") && document.contains("namaLokasi")) {
                                 String imageUrl = document.getString("imageUrl");
                                 String namaLokasi = document.getString("namaLokasi");

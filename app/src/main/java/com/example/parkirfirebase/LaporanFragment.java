@@ -33,8 +33,8 @@ import java.util.Date;
 
 public class LaporanFragment extends Fragment {
 
-    private EditText etName, etNoTlp, etJmlOne, etJmlTwo;
-    private Spinner itemSpinnerOne, itemSpinnerTwo;
+    private EditText etName;
+    private Spinner itemSpinnerOne;
     private Button btnPrint;
     private Bitmap bitmap, scaleBitmap;
     private int pageWidth = 1200;

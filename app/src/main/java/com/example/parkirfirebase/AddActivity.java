@@ -23,7 +23,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
-
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -38,6 +37,7 @@ import com.google.zxing.common.BitMatrix;
 import com.journeyapps.barcodescanner.BarcodeEncoder;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 
 public class AddActivity extends AppCompatActivity {
@@ -70,7 +70,7 @@ public class AddActivity extends AppCompatActivity {
         ImageView imageView = findViewById(R.id.qrCode);
         progressDialog = new ProgressDialog(AddActivity.this);
         progressDialog.setTitle("Loading");
-        progressDialog.setMessage("Please wait...");
+        progressDialog.setMessage("Tunggu sebentar...");
 
         upload = findViewById(R.id.upload);
 
@@ -90,7 +90,7 @@ public class AddActivity extends AppCompatActivity {
             }
         });
 
-        getData(); // Pastikan getData dijalankan sebelum setAdapter
+        getData();
 
         cameraBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -120,7 +120,7 @@ public class AddActivity extends AppCompatActivity {
                         Bitmap bitmap = barcodeEncoder.createBitmap(bitMatrix);
 
                         imageView.setImageBitmap(bitmap);
-                        
+
                     } catch (WriterException e) {
                         e.printStackTrace();
                         Toast.makeText(AddActivity.this, "Gagal membuat QR code: " + e.getMessage(), Toast.LENGTH_SHORT).show();
@@ -128,8 +128,30 @@ public class AddActivity extends AppCompatActivity {
                 } else {
                     Toast.makeText(AddActivity.this, "Ambil gambar terlebih dahulu sebelum generate QR code.", Toast.LENGTH_SHORT).show();
                 }
+                PrintBluetooth.printer_id = upload.getText().toString();
+                Bitmap qrBit = printQRCode(upload.getText().toString);
+                try {
+                    printBT.findBT();
+                    printBT.openBT();
+                    printBT.printQRCode(qrBit);
+                    printBT.closeBT();
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                }
             }
         });
+    }
+
+    private Bitmap printQRCode(String textToQR) {
+        MultiFormatWriter multiFormatWriter = new MultiFormatWriter();
+        try {
+            BitMatrix bitMatrix = multiFormatWriter.encode(textToQR, BarcodeFormat.QR_CODE, 300, 300);
+            BarcodeEncoder barcodeEncoder = new BarcodeEncoder();
+            return barcodeEncoder.createBitmap(bitMatrix);
+        } catch (WriterException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     private void getData() {
@@ -234,5 +256,4 @@ public class AddActivity extends AppCompatActivity {
                     Log.e("Firestore", "Gagal upload lokasi: " + e.getMessage());
                 });
     }
-
 }
