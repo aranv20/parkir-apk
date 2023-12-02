@@ -1,4 +1,4 @@
-package com.example.parkirfirebase;
+package com.example.parkirfirebase.history;
 
 public class LokasiModel {
     private String namaLokasi;

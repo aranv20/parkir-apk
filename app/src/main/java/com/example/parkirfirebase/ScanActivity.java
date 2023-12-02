@@ -19,7 +19,7 @@ import com.journeyapps.barcodescanner.CaptureActivity;
 
 public class ScanActivity extends CaptureActivity {
 
-    private static final String TAG = ScanActivity.class.getSimpleName();
+    public static final String TAG = ScanActivity.class.getSimpleName();
     private static final int CAMERA_PERMISSION_REQUEST_CODE = 200;
     private TextView scannedDataTextView;
 

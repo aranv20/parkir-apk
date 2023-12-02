@@ -1,10 +1,12 @@
-package com.example.parkirfirebase;
+package com.example.parkirfirebase.printqr;
 
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.example.parkirfirebase.R;
 
 public class PrintActivity extends AppCompatActivity {
 

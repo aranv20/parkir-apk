@@ -1,8 +1,11 @@
-package com.example.parkirfirebase;
+package com.example.parkirfirebase.auth;
 
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+
+import com.example.parkirfirebase.MainActivity;
+import com.example.parkirfirebase.R;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 

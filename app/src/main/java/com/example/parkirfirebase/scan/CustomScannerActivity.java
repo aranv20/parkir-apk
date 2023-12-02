@@ -1,7 +1,9 @@
-package com.example.parkirfirebase;
+package com.example.parkirfirebase.scan;
 
 import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.example.parkirfirebase.R;
 
 public class CustomScannerActivity extends AppCompatActivity {
 

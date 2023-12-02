@@ -1,4 +1,4 @@
-package com.example.parkirfirebase;
+package com.example.parkirfirebase.history;
 
 public class ImageModel {
     private String imageUrl;

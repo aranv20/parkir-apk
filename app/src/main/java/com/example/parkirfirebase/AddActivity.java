@@ -23,6 +23,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import com.example.parkirfirebase.history.LokasiModel;
+import com.example.parkirfirebase.printqr.PrintBT;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -54,11 +56,16 @@ public class AddActivity extends AppCompatActivity {
     private QuerySnapshot cities = null;
     private Bitmap capturedImage; // Menyimpan gambar yang diambil dari kamera
     private static final int REQUEST_IMAGE_CAPTURE = 1;
+    // Tambahkan deklarasi untuk printBT
+    private PrintBT printBT;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add);
+
+        // Inisialisasi objek printBT
+        printBT = new PrintBT();
 
         firebaseStorage = FirebaseStorage.getInstance();
         mStorageRef = firebaseStorage.getReference();
@@ -121,22 +128,23 @@ public class AddActivity extends AppCompatActivity {
 
                         imageView.setImageBitmap(bitmap);
 
+                        // Perbaiki pemanggilan metode printQRCode
+                        Bitmap qrBit = printQRCode(combinedInfo);
+                        try {
+                            PrintBT printBT = new PrintBT(); // Deklarasikan dan inisialisasikan objek PrintBT
+                            printBT.findBT();
+                            printBT.openBT();
+                            printBT.printQRCode(qrBit.toString());
+                            printBT.closeBT();
+                        } catch (IOException ex) {
+                            ex.printStackTrace();
+                        }
                     } catch (WriterException e) {
                         e.printStackTrace();
                         Toast.makeText(AddActivity.this, "Gagal membuat QR code: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                     }
                 } else {
                     Toast.makeText(AddActivity.this, "Ambil gambar terlebih dahulu sebelum generate QR code.", Toast.LENGTH_SHORT).show();
-                }
-                PrintBluetooth.printer_id = upload.getText().toString();
-                Bitmap qrBit = printQRCode(upload.getText().toString);
-                try {
-                    printBT.findBT();
-                    printBT.openBT();
-                    printBT.printQRCode(qrBit);
-                    printBT.closeBT();
-                } catch (IOException ex) {
-                    ex.printStackTrace();
                 }
             }
         });

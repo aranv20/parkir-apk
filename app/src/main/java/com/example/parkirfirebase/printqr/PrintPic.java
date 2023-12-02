@@ -1,4 +1,4 @@
-package com.example.parkirfirebase;
+package com.example.parkirfirebase.printqr;
 
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -7,15 +7,11 @@ import android.graphics.Paint;
 public class PrintPic {
 
     public Canvas canvas = null;
-
     public Paint paint = null;
-
     public Bitmap bm = null;
     public int width;
     public float length = 0.0F;
-
     public byte[] bitbuf = null;
-
     private PrintPic() {
     }
 
