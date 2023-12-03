@@ -41,6 +41,7 @@ import com.journeyapps.barcodescanner.BarcodeEncoder;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 
 public class AddActivity extends AppCompatActivity {
 
@@ -109,6 +110,7 @@ public class AddActivity extends AppCompatActivity {
             }
         });
 
+        // AddActivity.java
         upload.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -117,8 +119,10 @@ public class AddActivity extends AppCompatActivity {
 
                     try {
                         String imageUrl = uploadToFirebase(capturedImage, lokasiString);
+
                         // Menggabungkan informasi dari spinner dengan timestamp
-                        String combinedInfo = lokasiString + "_" + imageUrl;
+                        LokasiModel lokasiModel = new LokasiModel(lokasiString, imageUrl, new Date());
+                        String combinedInfo = lokasiModel.getNamaLokasi() + "_" + lokasiModel.getImageUrl() + "_" + lokasiModel.getWaktu();
 
                         // Menghasilkan QR code dari informasi yang digabungkan
                         BitMatrix bitMatrix = new MultiFormatWriter().encode(combinedInfo, BarcodeFormat.QR_CODE, 300, 300);
@@ -147,6 +151,7 @@ public class AddActivity extends AppCompatActivity {
                 }
             }
         });
+
     }
 
     private Bitmap printQRCode(String textToQR) {
@@ -253,8 +258,20 @@ public class AddActivity extends AppCompatActivity {
     }
 
     private void saveLocationData(String lokasi, String imageUrl) {
+        // Membuat objek LokasiModel baru dengan timestamp
+        LokasiModel lokasiModel = new LokasiModel(lokasi, imageUrl, new Date());
+
+        // Set waktu pada objek LokasiModel
+        lokasiModel.setWaktu(new Date());
+
+        // Mendapatkan timestamp saat ini
+        Date timestamp = new Date();
+
+        // Mengatur timestamp ke objek LokasiModel
+        lokasiModel.setWaktu(timestamp);
+
         db.collection("parking")
-                .add(new LokasiModel(lokasi, imageUrl)) // Sesuaikan dengan kelas LokasiModel yang Anda miliki
+                .add(lokasiModel)
                 .addOnSuccessListener(documentReference -> {
                     Toast.makeText(AddActivity.this, "Sukses Upload", Toast.LENGTH_SHORT).show();
                 })

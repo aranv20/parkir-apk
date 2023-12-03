@@ -42,6 +42,7 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHol
 
         // Set data ke tampilan di dalam ViewHolder
         holder.namaLokasiTextView.setText(imageModel.getNamaLokasi());
+        holder.waktuTextView.setText(imageModel.getWaktu()); // Tambahkan ini
 
         // Menggunakan Glide untuk memuat gambar dari URL
         Glide.with(holder.itemView.getContext())
@@ -72,11 +73,13 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHol
     public static class ImageViewHolder extends RecyclerView.ViewHolder {
         ImageView imageView;
         TextView namaLokasiTextView;
+        TextView waktuTextView; // Tambahkan ini
 
         public ImageViewHolder(@NonNull View itemView) {
             super(itemView);
             imageView = itemView.findViewById(R.id.iv_image);
             namaLokasiTextView = itemView.findViewById(R.id.namaLokasi);
+            waktuTextView = itemView.findViewById(R.id.waktu); // Sesuaikan dengan ID yang sesuai di XML
         }
     }
 }

@@ -48,7 +48,7 @@ public class HistoryFragment extends Fragment {
 
         recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
         recyclerView.setAdapter(imageAdapter);
-        
+
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
         db.collection("parking")
@@ -56,12 +56,16 @@ public class HistoryFragment extends Fragment {
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
                         for (QueryDocumentSnapshot document : task.getResult()) {
-                            if (document.contains("imageUrl") && document.contains("namaLokasi")) {
+                            if (document.contains("imageUrl") && document.contains("namaLokasi") && document.contains("waktu")) {
                                 String imageUrl = document.getString("imageUrl");
                                 String namaLokasi = document.getString("namaLokasi");
 
+                                // Ambil timestamp dan konversi ke Date
+                                Timestamp timestamp = document.getTimestamp("waktu");
+                                String waktu = (timestamp != null) ? timestamp.toDate().toString() : "Unknown";
+
                                 // Tambahkan ke daftar hanya jika kedua field ada
-                                ImageModel imageModel = new ImageModel(imageUrl, namaLokasi);
+                                ImageModel imageModel = new ImageModel(imageUrl, namaLokasi, waktu);
                                 imageList.add(imageModel);
                                 imageAdapter.notifyDataSetChanged();
                             } else {
