@@ -48,9 +48,7 @@ public class HistoryFragment extends Fragment {
 
         recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
         recyclerView.setAdapter(imageAdapter);
-
-
-
+        
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
         db.collection("parking")
