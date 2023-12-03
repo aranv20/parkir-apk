@@ -3,6 +3,7 @@ package com.example.parkirfirebase;
 import android.Manifest;
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -110,7 +111,6 @@ public class AddActivity extends AppCompatActivity {
             }
         });
 
-        // AddActivity.java
         upload.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -133,15 +133,8 @@ public class AddActivity extends AppCompatActivity {
 
                         // Perbaiki pemanggilan metode printQRCode
                         Bitmap qrBit = printQRCode(combinedInfo);
-                        try {
-                            PrintBT printBT = new PrintBT(); // Deklarasikan dan inisialisasikan objek PrintBT
-                            printBT.findBT();
-                            printBT.openBT();
-                            printBT.printQRCode(qrBit.toString());
-                            printBT.closeBT();
-                        } catch (IOException ex) {
-                            ex.printStackTrace();
-                        }
+                        // Print QR Code melalui Bluetooth
+                        printQRCodeViaBluetooth(qrBit);
                     } catch (WriterException e) {
                         e.printStackTrace();
                         Toast.makeText(AddActivity.this, "Gagal membuat QR code: " + e.getMessage(), Toast.LENGTH_SHORT).show();
@@ -151,9 +144,22 @@ public class AddActivity extends AppCompatActivity {
                 }
             }
         });
-
     }
 
+    private void printQRCodeViaBluetooth(Bitmap qrBit) {
+        try {
+            // Mendapatkan BluetoothDevice yang ingin Anda hubungkan
+            BluetoothDevice bluetoothDevice = ...; // Inisialisasi dengan BluetoothDevice yang sesuai
+
+            // Memanggil metode printQRCodeViaBluetooth dengan BluetoothDevice
+            printBT.printQRCodeViaBluetooth(qrBit, bluetoothDevice);
+        } catch (IOException e) {
+            e.printStackTrace();
+            // Tangani kesalahan koneksi Bluetooth
+            Toast.makeText(this, "Gagal terhubung ke perangkat Bluetooth", Toast.LENGTH_SHORT).show();
+        }
+    }
+    
     private Bitmap printQRCode(String textToQR) {
         MultiFormatWriter multiFormatWriter = new MultiFormatWriter();
         try {

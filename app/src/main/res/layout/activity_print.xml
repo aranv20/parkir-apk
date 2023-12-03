@@ -1,29 +1,25 @@
-<?xml version="1.0" encoding="utf-8"?>
-<androidx.appcompat.widget.LinearLayoutCompat xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<!-- activity_main.xml -->
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:background="@color/white"
-    tools:context=".printqr.PrintActivity">
-
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="30dp"
-        android:textColor="@color/black"
-        android:text="Lokasi"
-        android:id="@+id/lokasiPrint"
-        android:textSize="20sp"
-        android:textAlignment="center"/>
+    android:padding="10dp"
+    tools:context=".printqr.YourActivity">
 
     <ImageView
-        android:id="@+id/qrCodeImageView"
+        android:id="@+id/qrCode"
+        android:layout_width="match_parent"
+        android:layout_height="318dp"
         android:layout_marginTop="30dp"
-        android:layout_gravity="center"
-        android:layout_width="200dp"
-        android:layout_height="200dp"/>
+        android:scaleType="fitCenter"/>
 
+    <Button
+        android:id="@+id/yourButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/qrCode"
+        android:text="Click Me" />
 
-</androidx.appcompat.widget.LinearLayoutCompat>
+    <!-- Other UI elements go here -->
+
+</RelativeLayout>

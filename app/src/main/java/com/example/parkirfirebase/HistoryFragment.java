@@ -103,7 +103,7 @@ public class HistoryFragment extends Fragment {
                             String namaLokasi = documentSnapshot.getString("namaLokasi");
 
                             // Pengecekan apakah timestamp tidak null sebelum memanggil toDate()
-                            Timestamp timestamp = documentSnapshot.getTimestamp("waktu_field");
+                            Timestamp timestamp = documentSnapshot.getTimestamp("waktu");
                             String waktu = (timestamp != null) ? timestamp.toDate().toString() : "Unknown";
 
                             reportDataList.add("Data dari Firestore: " + imageUrl + "\n" +
