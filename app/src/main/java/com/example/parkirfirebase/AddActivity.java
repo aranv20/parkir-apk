@@ -56,7 +56,6 @@ public class AddActivity extends AppCompatActivity {
     private QuerySnapshot cities = null;
     private Bitmap capturedImage; // Menyimpan gambar yang diambil dari kamera
     private static final int REQUEST_IMAGE_CAPTURE = 1;
-    // Tambahkan deklarasi untuk printBT
     private PrintBT printBT;
 
     @Override

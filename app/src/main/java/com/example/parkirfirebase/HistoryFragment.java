@@ -116,7 +116,6 @@ public class HistoryFragment extends Fragment {
                 });
     }
 
-
     private void sendReportDataToPdfActivity(List<String> reportDataList) {
         Log.d(TAG, "Sending report data to ReportActivity: " + reportDataList);
         Intent pdfIntent = new Intent(getActivity(), ReportActivity.class);

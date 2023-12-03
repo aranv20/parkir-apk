@@ -19,6 +19,7 @@
     <string name="thumb">Thumbs</string>
     <string name="heroes_name">Lokasi</string>
     <string name="description">imgUrl</string>
+    <string name="laporan">Terima kasih, silahkan cek penyimpanan Lokal secara berkala untuk melihat Laporannya</string>
     <string-array name="menu_spinner">
         <item>Pilih Lokasi</item>
         <item>Gedung Kuliah Bersama</item>
