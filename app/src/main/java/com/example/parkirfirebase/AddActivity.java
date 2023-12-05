@@ -3,7 +3,6 @@ package com.example.parkirfirebase;
 import android.Manifest;
 import android.app.Activity;
 import android.app.ProgressDialog;
-import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -40,7 +39,6 @@ import com.google.zxing.common.BitMatrix;
 import com.journeyapps.barcodescanner.BarcodeEncoder;
 
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -66,7 +64,7 @@ public class AddActivity extends AppCompatActivity {
         setContentView(R.layout.activity_add);
 
         // Inisialisasi objek printBT
-        printBT = new PrintBT();
+        //printBT = new PrintBT();
 
         firebaseStorage = FirebaseStorage.getInstance();
         mStorageRef = firebaseStorage.getReference();
@@ -118,7 +116,7 @@ public class AddActivity extends AppCompatActivity {
                     String lokasiString = lokasi.getSelectedItem().toString();
 
                     try {
-                        String imageUrl = uploadToFirebase(capturedImage, lokasiString);
+                        String imageUrl = uploadToFirebase(capturedImage, lokasiString,new Date());
 
                         // Menggabungkan informasi dari spinner dengan timestamp
                         LokasiModel lokasiModel = new LokasiModel(lokasiString, imageUrl, new Date());
@@ -134,7 +132,7 @@ public class AddActivity extends AppCompatActivity {
                         // Perbaiki pemanggilan metode printQRCode
                         Bitmap qrBit = printQRCode(combinedInfo);
                         // Print QR Code melalui Bluetooth
-                        printQRCodeViaBluetooth(qrBit);
+                        //printQRCodeViaBluetooth(qrBit);
                     } catch (WriterException e) {
                         e.printStackTrace();
                         Toast.makeText(AddActivity.this, "Gagal membuat QR code: " + e.getMessage(), Toast.LENGTH_SHORT).show();
@@ -146,19 +144,19 @@ public class AddActivity extends AppCompatActivity {
         });
     }
 
-    private void printQRCodeViaBluetooth(Bitmap qrBit) {
-        try {
-            // Mendapatkan BluetoothDevice yang ingin Anda hubungkan
-            BluetoothDevice bluetoothDevice = ...; // Inisialisasi dengan BluetoothDevice yang sesuai
-
-            // Memanggil metode printQRCodeViaBluetooth dengan BluetoothDevice
-            printBT.printQRCodeViaBluetooth(qrBit, bluetoothDevice);
-        } catch (IOException e) {
-            e.printStackTrace();
-            // Tangani kesalahan koneksi Bluetooth
-            Toast.makeText(this, "Gagal terhubung ke perangkat Bluetooth", Toast.LENGTH_SHORT).show();
-        }
-    }
+//    private void printQRCodeViaBluetooth(Bitmap qrBit) {
+//        try {
+//            // Mendapatkan BluetoothDevice yang ingin Anda hubungkan
+//            BluetoothDevice bluetoothDevice = ...; // Inisialisasi dengan BluetoothDevice yang sesuai
+//
+//            // Memanggil metode printQRCodeViaBluetooth dengan BluetoothDevice
+//            printBT.printQRCodeViaBluetooth(qrBit, bluetoothDevice);
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//            // Tangani kesalahan koneksi Bluetooth
+//            Toast.makeText(this, "Gagal terhubung ke perangkat Bluetooth", Toast.LENGTH_SHORT).show();
+//        }
+//    }
     
     private Bitmap printQRCode(String textToQR) {
         MultiFormatWriter multiFormatWriter = new MultiFormatWriter();
@@ -235,7 +233,7 @@ public class AddActivity extends AppCompatActivity {
         }
     }
 
-    private String uploadToFirebase(Bitmap bitmap, String lokasi) {
+    private String uploadToFirebase(Bitmap bitmap, String lokasi, Date date) {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         bitmap.compress(Bitmap.CompressFormat.JPEG, 90, baos);
         byte[] data = baos.toByteArray();
@@ -248,7 +246,7 @@ public class AddActivity extends AppCompatActivity {
                     // Mendapatkan URL unduhan setelah berhasil upload
                     imageRef.getDownloadUrl().addOnSuccessListener(uri -> {
                         // Menggunakan URL HTTPS untuk menyimpan data lokasi
-                        saveLocationData(lokasi, uri.toString());
+                        saveLocationData(lokasi,date, uri.toString());
                     }).addOnFailureListener(e -> {
                         Toast.makeText(AddActivity.this, "Gagal mendapatkan URL: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                         Log.e("FirebaseStorage", "Gagal mendapatkan URL: " + e.getMessage());
@@ -263,7 +261,7 @@ public class AddActivity extends AppCompatActivity {
         return imageRef.toString();
     }
 
-    private void saveLocationData(String lokasi, String imageUrl) {
+    private void saveLocationData(String lokasi, Date date, String imageUrl) {
         // Membuat objek LokasiModel baru dengan timestamp
         LokasiModel lokasiModel = new LokasiModel(lokasi, imageUrl, new Date());
 

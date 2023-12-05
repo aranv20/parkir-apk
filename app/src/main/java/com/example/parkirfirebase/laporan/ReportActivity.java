@@ -28,11 +28,10 @@ public class ReportActivity extends AppCompatActivity {
 
         firestore = FirebaseFirestore.getInstance();
 
-        // Mendapatkan data dari intent yang dikirim oleh ParkingFragment
+
         List<String> reportDataList = getIntent().getStringArrayListExtra("reportDataList");
 
         if (reportDataList != null) {
-            // Memeriksa dan meminta izin WRITE_EXTERNAL_STORAGE jika belum diberikan
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
                 createPdf(reportDataList);
             } else {
@@ -64,9 +63,8 @@ public class ReportActivity extends AppCompatActivity {
         }
     }
 
-    private void createPdf(List<String> data) {
+    private void createPdf(List<String> data, List<byte[]> imageDataList) {
         try {
-            // Log untuk memeriksa apakah data tiba dengan benar
             Log.d(TAG, "Data for PDF: " + data);
 
             String pdfPath = getExternalFilesDir(null) + "/laporan_parkir.pdf";
@@ -76,17 +74,29 @@ public class ReportActivity extends AppCompatActivity {
             com.itextpdf.text.pdf.PdfWriter.getInstance(document, outputStream);
             document.open();
 
-            for (String item : data) {
-                document.add(new com.itextpdf.text.Paragraph(item));
+            for (int i = 0; i < data.size(); i++) {
+                String item = data.get(i);
+
+                // Check if the current item is an image
+                if (item.startsWith("image:")) {
+                    byte[] imageData = imageDataList.get(i);
+                    // Add the image to the PDF
+                    com.itextpdf.text.Image image = com.itextpdf.text.Image.getInstance(imageData);
+                    document.add(image);
+                } else {
+                    // Add text data to the PDF
+                    document.add(new com.itextpdf.text.Paragraph(item));
+                }
             }
 
             document.close();
             Log.d(TAG, "PDF created successfully");
         } catch (Exception e) {
             Log.e(TAG, "Error creating PDF: " + e.getMessage());
-            e.printStackTrace(); // Tambahkan ini untuk melihat stack trace lengkap
+            e.printStackTrace();
         }
     }
+
 
     // Metode untuk menangani respons izin
     @Override
