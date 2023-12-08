@@ -106,8 +106,8 @@ public class HistoryFragment extends Fragment {
                             Timestamp timestamp = documentSnapshot.getTimestamp("waktu");
                             String waktu = (timestamp != null) ? timestamp.toDate().toString() : "Unknown";
 
-                            reportDataList.add("Data dari Firestore: " + imageUrl + "\n" +
-                                    "Data dari Firestore: " + namaLokasi + "\n" +
+                            reportDataList.add("Gambar: " + imageUrl + "\n" +
+                                    "Lokasi: " + namaLokasi + "\n" +
                                     "Waktu Real-time: " + waktu + "\n\n");
                         }
                         // Kirim data ke PdfActivity

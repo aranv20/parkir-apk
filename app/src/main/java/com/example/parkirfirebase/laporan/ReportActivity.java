@@ -4,12 +4,15 @@ import android.Manifest;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.util.Log;
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+
 import com.example.parkirfirebase.R;
 import com.google.firebase.firestore.FirebaseFirestore;
+
 import java.io.FileOutputStream;
 import java.io.OutputStream;
 import java.util.List;
@@ -18,8 +21,8 @@ public class ReportActivity extends AppCompatActivity {
 
     private static final String TAG = "ReportActivity";
     private static final int REQUEST_CODE_STORAGE_PERMISSION = 1;
-
     private FirebaseFirestore firestore;
+    private List<String> receivedReportDataList; // Deklarasikan sebagai anggota kelas
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,44 +31,44 @@ public class ReportActivity extends AppCompatActivity {
 
         firestore = FirebaseFirestore.getInstance();
 
+        receivedReportDataList = getIntent().getStringArrayListExtra("reportDataList");
 
-        List<String> reportDataList = getIntent().getStringArrayListExtra("reportDataList");
-
-        if (reportDataList != null) {
+        if (receivedReportDataList != null) {
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-                createPdf(reportDataList);
+                generateReport(receivedReportDataList);
             } else {
                 ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_CODE_STORAGE_PERMISSION);
             }
         } else {
-            Log.e(TAG, "Error: No report data received.");
-            // Handle error, maybe show a toast or navigate back
+            Log.e(TAG, "Error: Tidak ada data laporan yang diterima.");
+            // Tangani kesalahan, mungkin tampilkan toast atau navigasi kembali
             finish();
         }
     }
 
     private void generateReport(List<String> reportDataList) {
         // Log untuk memeriksa apakah data tiba dengan benar
-        Log.d(TAG, "Received report data: " + reportDataList);
+        Log.d(TAG, "Data laporan yang diterima: " + reportDataList);
 
-        // Skip pengambilan data dari Firestore karena data sudah ada dalam reportDataList
+        // Lewati pengambilan data dari Firestore karena data sudah ada dalam reportDataList
 
-        // Pengecekan apakah data tidak kosong sebelum membuat PDF
+        // Periksa apakah data tidak kosong sebelum membuat PDF
         if (reportDataList != null && !reportDataList.isEmpty()) {
-            // Memeriksa dan meminta izin WRITE_EXTERNAL_STORAGE jika belum diberikan
+            // Periksa dan minta izin WRITE_EXTERNAL_STORAGE jika belum diberikan
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-                createPdf(reportDataList);
+                // Perhatikan bahwa pada baris berikut, saya mengganti nama argumen dari 'reportDataList' menjadi 'receivedReportDataList'
+                createPdf(receivedReportDataList);
             } else {
                 ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_CODE_STORAGE_PERMISSION);
             }
         } else {
-            Log.e(TAG, "Error: Data is empty or null.");
+            Log.e(TAG, "Error: Data kosong atau null.");
         }
     }
 
-    private void createPdf(List<String> data, List<byte[]> imageDataList) {
+    private void createPdf(List<String> receivedReportDataList) {
         try {
-            Log.d(TAG, "Data for PDF: " + data);
+            Log.d(TAG, "Data untuk PDF: " + receivedReportDataList);
 
             String pdfPath = getExternalFilesDir(null) + "/laporan_parkir.pdf";
             OutputStream outputStream = new FileOutputStream(pdfPath);
@@ -74,29 +77,18 @@ public class ReportActivity extends AppCompatActivity {
             com.itextpdf.text.pdf.PdfWriter.getInstance(document, outputStream);
             document.open();
 
-            for (int i = 0; i < data.size(); i++) {
-                String item = data.get(i);
-
-                // Check if the current item is an image
-                if (item.startsWith("image:")) {
-                    byte[] imageData = imageDataList.get(i);
-                    // Add the image to the PDF
-                    com.itextpdf.text.Image image = com.itextpdf.text.Image.getInstance(imageData);
-                    document.add(image);
-                } else {
-                    // Add text data to the PDF
-                    document.add(new com.itextpdf.text.Paragraph(item));
-                }
+            // Implementasi untuk menambahkan data ke PDF
+            for (String data : receivedReportDataList) {
+                document.add(new com.itextpdf.text.Paragraph(data));
             }
 
             document.close();
-            Log.d(TAG, "PDF created successfully");
+            Log.d(TAG, "PDF berhasil dibuat");
         } catch (Exception e) {
-            Log.e(TAG, "Error creating PDF: " + e.getMessage());
+            Log.e(TAG, "Error saat membuat PDF: " + e.getMessage());
             e.printStackTrace();
         }
     }
-
 
     // Metode untuk menangani respons izin
     @Override
@@ -105,16 +97,16 @@ public class ReportActivity extends AppCompatActivity {
         if (requestCode == REQUEST_CODE_STORAGE_PERMISSION) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 // Izin diberikan, buat PDF
-                List<String> reportDataList = getIntent().getStringArrayListExtra("reportDataList");
-                if (reportDataList != null && !reportDataList.isEmpty()) {
-                    createPdf(reportDataList);
+                if (receivedReportDataList != null && !receivedReportDataList.isEmpty()) {
+                    // Perhatikan bahwa pada baris berikut, saya mengganti nama argumen dari 'reportDataList' menjadi 'receivedReportDataList'
+                    createPdf(receivedReportDataList);
                 } else {
-                    Log.e(TAG, "Error: Data is empty or null.");
+                    Log.e(TAG, "Error: Data kosong atau null.");
                 }
             } else {
                 // Izin ditolak, tindakan yang sesuai dapat diambil
-                Log.e(TAG, "Permission denied. Unable to create PDF.");
-                // Handle the denial, show a message, etc.
+                Log.e(TAG, "Izin ditolak. Tidak dapat membuat PDF.");
+                // Tangani penolakan, tampilkan pesan, dll.
                 finish();
             }
         }
