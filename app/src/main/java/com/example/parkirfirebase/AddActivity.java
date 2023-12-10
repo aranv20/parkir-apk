@@ -41,6 +41,7 @@ import com.journeyapps.barcodescanner.BarcodeEncoder;
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.Date;
+import java.text.SimpleDateFormat;
 
 public class AddActivity extends AppCompatActivity {
 
@@ -246,7 +247,7 @@ public class AddActivity extends AppCompatActivity {
                     // Mendapatkan URL unduhan setelah berhasil upload
                     imageRef.getDownloadUrl().addOnSuccessListener(uri -> {
                         // Menggunakan URL HTTPS untuk menyimpan data lokasi
-                        saveLocationData(lokasi,date, uri.toString());
+                        saveLocationData(lokasi, date, uri.toString());
                     }).addOnFailureListener(e -> {
                         Toast.makeText(AddActivity.this, "Gagal mendapatkan URL: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                         Log.e("FirebaseStorage", "Gagal mendapatkan URL: " + e.getMessage());
@@ -262,18 +263,33 @@ public class AddActivity extends AppCompatActivity {
     }
 
     private void saveLocationData(String lokasi, Date date, String imageUrl) {
-        // Membuat objek LokasiModel baru dengan timestamp
-        LokasiModel lokasiModel = new LokasiModel(lokasi, imageUrl, new Date());
+        // Versioning timestamp ke string dengan format tertentu (tanggal-bulan-tahun jam:menit:detik GMT)
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss z");
+        String formattedDate = dateFormat.format(date);
 
-        // Set waktu pada objek LokasiModel
-        lokasiModel.setWaktu(new Date());
+        // Menggabungkan informasi lokasi, imageUrl, dan waktu menjadi satu string
+        String combinedInfo = lokasi + "_" + imageUrl + "_" + formattedDate;
 
-        // Mendapatkan timestamp saat ini
-        Date timestamp = new Date();
+        // Menghasilkan QR code dari informasi yang digabungkan
+        BitMatrix bitMatrix = null;
+        try {
+            bitMatrix = new MultiFormatWriter().encode(combinedInfo, BarcodeFormat.QR_CODE, 300, 300);
+        } catch (WriterException e) {
+            e.printStackTrace();
+            Toast.makeText(AddActivity.this, "Gagal membuat QR code: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+            return;
+        }
 
-        // Mengatur timestamp ke objek LokasiModel
-        lokasiModel.setWaktu(timestamp);
+        BarcodeEncoder barcodeEncoder = new BarcodeEncoder();
+        Bitmap qrBitmap = barcodeEncoder.createBitmap(bitMatrix);
 
+        // Tampilkan QR code di ImageView
+        qrCode.setImageBitmap(qrBitmap);
+
+        // Membuat objek LokasiModel baru
+        LokasiModel lokasiModel = new LokasiModel(lokasi, imageUrl, date);
+
+        // Menyimpan informasi lokasi ke Firestore
         db.collection("parking")
                 .add(lokasiModel)
                 .addOnSuccessListener(documentReference -> {
