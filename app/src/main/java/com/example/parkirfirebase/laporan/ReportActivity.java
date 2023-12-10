@@ -13,10 +13,14 @@ import androidx.core.content.ContextCompat;
 
 import com.example.parkirfirebase.R;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.itextpdf.text.DocumentException;
+import com.itextpdf.text.Image;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.OutputStream;
+import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -100,13 +104,40 @@ public class ReportActivity extends AppCompatActivity {
 
             // Implementasi untuk menambahkan data ke PDF
             for (String data : receivedReportDataList) {
-                document.add(new com.itextpdf.text.Paragraph(data));
+                // Periksa apakah baris data mengandung URL gambar
+                if (data.toLowerCase().contains("https") && (data.toLowerCase().contains(".jpg") || data.toLowerCase().contains(".png"))) {
+                    // Jika iya, tambahkan gambar ke dokumen
+                    addImageFromUrl(document, data);
+                } else {
+                    // Jika tidak, tambahkan teks paragraf
+                    document.add(new com.itextpdf.text.Paragraph(data));
+                }
             }
 
             document.close();
             Log.d(TAG, "PDF berhasil dibuat di: " + pdfPath);
         } catch (Exception e) {
             Log.e(TAG, "Error saat membuat PDF: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    // Metode untuk menambahkan gambar dari URL ke dokumen PDF
+    private void addImageFromUrl(com.itextpdf.text.Document document, String imageUrl) throws DocumentException {
+        try {
+            // Menggunakan Image.getInstance untuk menambahkan gambar dari URL ke PDF
+            Image image = Image.getInstance(new URL(imageUrl));
+
+            // Set ukuran gambar sesuai kebutuhan (opsional)
+            image.scaleToFit(400, 400);
+
+            // Tentukan posisi gambar (opsional)
+            image.setAbsolutePosition(100, 100);
+
+            // Menambahkan gambar ke dokumen
+            document.add(image);
+        } catch (IOException e) {
+            Log.e(TAG, "Error saat menambahkan gambar dari URL: " + e.getMessage());
             e.printStackTrace();
         }
     }
