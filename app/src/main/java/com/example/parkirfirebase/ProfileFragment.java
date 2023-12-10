@@ -4,20 +4,25 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.fragment.app.Fragment;
 
 import com.example.parkirfirebase.auth.Login;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+import com.bumptech.glide.Glide; // Tambahkan ini
 
 import java.util.Objects;
 
@@ -28,11 +33,13 @@ public class ProfileFragment extends Fragment {
     FirebaseAuth auth;
     Button button;
     TextView textView;
-    FirebaseUser user;
     ImageView imageView;
 
     // Referensi ke Firebase Storage
     StorageReference storageReference;
+
+    // Referensi ke Realtime Database
+    DatabaseReference databaseReference;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -44,10 +51,15 @@ public class ProfileFragment extends Fragment {
         button = view.findViewById(R.id.logout);
         textView = view.findViewById(R.id.user_details);
         imageView = view.findViewById(R.id.profile_image);
-        user = auth.getCurrentUser();
 
         // Referensi ke Firebase Storage dengan path 'profile'
         storageReference = FirebaseStorage.getInstance().getReference().child("profile");
+
+        // Referensi ke Realtime Database
+        databaseReference = FirebaseDatabase.getInstance().getReference().child("users");
+
+        // Mendapatkan pengguna yang terautentikasi
+        FirebaseUser user = auth.getCurrentUser();
 
         // Cek apakah pengguna sudah login
         if (user == null) {
@@ -58,6 +70,9 @@ public class ProfileFragment extends Fragment {
         } else {
             // Jika sudah login, tampilkan email pengguna
             textView.setText(user.getEmail());
+
+            // Muat dan tampilkan gambar profil
+            loadProfileImage();
         }
 
         // Set OnClickListener untuk gambar agar dapat memilih foto profil
@@ -101,30 +116,71 @@ public class ProfileFragment extends Fragment {
             // Setel gambar profil dengan URI yang dipilih
             imageView.setImageURI(imageUri);
 
-            // Upload gambar ke Firebase Storage
+            // Upload gambar ke Firebase Storage dan simpan URL di Realtime Database
             uploadImageToFirebase(imageUri);
         }
     }
 
     // Metode untuk mengunggah gambar ke Firebase Storage
     private void uploadImageToFirebase(Uri imageUri) {
-        if (user != null) {
+        if (auth.getCurrentUser() != null) {
             // Buat referensi ke lokasi penyimpanan dengan UID pengguna sebagai nama berkas
-            StorageReference userImageRef = storageReference.child(Objects.requireNonNull(user.getUid()));
+            StorageReference userImageRef = storageReference.child(auth.getCurrentUser().getUid());
 
             // Upload gambar ke Firebase Storage
             userImageRef.putFile(imageUri)
                     .addOnSuccessListener(taskSnapshot -> {
                         // Gambar berhasil diunggah
-                        // Dapatkan URL gambar yang diunggah (bisa digunakan untuk ditampilkan di aplikasi)
+                        // Dapatkan URL gambar yang diunggah
                         userImageRef.getDownloadUrl().addOnSuccessListener(uri -> {
                             // URL gambar tersedia di sini (uri.toString())
+                            // Simpan URL gambar ke Realtime Database
+                            saveImageUrlToDatabase(uri.toString());
                         });
                     })
                     .addOnFailureListener(e -> {
                         // Gagal mengunggah gambar
                         // Handle error
+                        Toast.makeText(getActivity(), "Gagal mengunggah gambar", Toast.LENGTH_SHORT).show();
                     });
+        }
+    }
+
+    // Metode untuk menyimpan URL gambar di Realtime Database
+    private void saveImageUrlToDatabase(String imageUrl) {
+        if (auth.getCurrentUser() != null) {
+            // Simpan URL gambar ke dalam Realtime Database dengan UID pengguna sebagai key
+            databaseReference.child(auth.getCurrentUser().getUid()).child("imageUrl").setValue(imageUrl)
+                    .addOnSuccessListener(aVoid -> {
+                        // URL gambar berhasil disimpan
+                        Toast.makeText(getActivity(), "Gambar profil berhasil disimpan", Toast.LENGTH_SHORT).show();
+                    })
+                    .addOnFailureListener(e -> {
+                        // Gagal menyimpan URL gambar
+                        // Handle error
+                        Toast.makeText(getActivity(), "Gagal menyimpan gambar profil", Toast.LENGTH_SHORT).show();
+                    });
+        }
+    }
+
+    // Metode untuk memuat dan menampilkan gambar profil dari URL
+    private void loadProfileImage() {
+        if (auth.getCurrentUser() != null) {
+            // Ambil URL gambar dari Realtime Database
+            databaseReference.child(auth.getCurrentUser().getUid()).child("imageUrl").get().addOnCompleteListener(task -> {
+                if (task.isSuccessful()) {
+                    String imageUrl = Objects.requireNonNull(task.getResult()).getValue(String.class);
+
+                    if (imageUrl != null && !imageUrl.isEmpty()) {
+                        // Gunakan Glide untuk memuat dan menampilkan gambar
+                        Glide.with(this).load(imageUrl).into(imageView);
+                    } else {
+                        Log.d("ProfileFragment", "URL Foto Profil Kosong atau Null");
+                    }
+                } else {
+                    Log.e("ProfileFragment", "Gagal mengambil URL Foto Profil", task.getException());
+                }
+            });
         }
     }
 }
