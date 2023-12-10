@@ -20,36 +20,40 @@
         card_view:cardCornerRadius="4dp"
         card_view:cardBackgroundColor="@color/lavender"
         android:id="@+id/card_view">
-        <androidx.constraintlayout.widget.ConstraintLayout
 
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="8dp">
+
+            <!-- Perubahan: Menambahkan ID untuk ImageView -->
             <ImageView
-                android:id="@+id/gambar"
+                android:id="@+id/profile_image"
                 android:layout_width="100dp"
                 android:layout_height="100dp"
                 android:layout_marginStart="8dp"
                 android:layout_marginTop="8dp"
                 android:layout_marginBottom="8dp"
+                android:src="@drawable/baseline_account_24"
                 card_view:layout_constraintBaseline_toBottomOf="parent"
                 card_view:layout_constraintStart_toStartOf="parent"
-                card_view:layout_constraintTop_toTopOf="parent"
-                tools:src="@tools:sample/avatars"/>
+                card_view:layout_constraintTop_toTopOf="parent" />
+
             <TextView
                 android:id="@+id/user_details"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:textColor="@color/white"
                 android:layout_marginStart="8dp"
                 android:layout_marginEnd="8dp"
-                android:layout_toEndOf="@id/gambar"
+                android:hint="@string/email"
+                android:layout_toEndOf="@id/profile_image"
                 android:textSize="16sp"
                 android:textStyle="bold"
                 card_view:layout_constraintEnd_toEndOf="parent"
-                card_view:layout_constraintStart_toEndOf="@+id/gambar"
-                card_view:layout_constraintTop_toTopOf="@+id/gambar"
+                card_view:layout_constraintStart_toEndOf="@+id/profile_image"
+                card_view:layout_constraintTop_toTopOf="@+id/profile_image"
                 tools:text="@+id/user_details"/>
-
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.cardview.widget.CardView>
 
@@ -60,7 +64,5 @@
         android:layout_marginTop="130dp"
         android:layout_marginStart="8dp"
         android:layout_marginBottom="8dp"
-        android:text="@string/logout"
-        />
-
+        android:text="@string/logout"/>
 </FrameLayout>
