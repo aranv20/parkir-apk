@@ -63,4 +63,6 @@ dependencies {
     annotationProcessor ("com.github.bumptech.glide:compiler:4.14.2")
     coreLibraryDesugaring ("com.android.tools:desugar_jdk_libs:2.0.4")
     implementation ("com.itextpdf:itextpdf:5.5.13.2")
+    implementation ("com.itextpdf:itext7-core:7.1.15")
+
 }

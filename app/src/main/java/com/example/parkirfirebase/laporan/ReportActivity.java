@@ -3,6 +3,7 @@ package com.example.parkirfirebase.laporan;
 import android.Manifest;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.os.Environment;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -13,8 +14,11 @@ import androidx.core.content.ContextCompat;
 import com.example.parkirfirebase.R;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 public class ReportActivity extends AppCompatActivity {
@@ -70,12 +74,29 @@ public class ReportActivity extends AppCompatActivity {
         try {
             Log.d(TAG, "Data untuk PDF: " + receivedReportDataList);
 
-            String pdfPath = getExternalFilesDir(null) + "/laporan_parkir.pdf";
+            // Tentukan nama file PDF
+            String pdfFileName = "laporan_parkir.pdf";
+
+            // Tentukan path untuk menyimpan file PDF
+            String pdfPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS) + "/" + pdfFileName;
+
+            // Pastikan bahwa direktori untuk menyimpan file PDF ada
+            File pdfDirectory = new File(pdfPath);
+            if (!pdfDirectory.exists()) {
+                pdfDirectory.mkdirs();
+            }
+
+            // Tambahkan nama file ke path
+            pdfPath = pdfPath + "/" + pdfFileName;
+
             OutputStream outputStream = new FileOutputStream(pdfPath);
 
             com.itextpdf.text.Document document = new com.itextpdf.text.Document();
             com.itextpdf.text.pdf.PdfWriter.getInstance(document, outputStream);
             document.open();
+
+            // Tambahkan kepala (header) ke dokumen
+            addHeader(document);
 
             // Implementasi untuk menambahkan data ke PDF
             for (String data : receivedReportDataList) {
@@ -83,12 +104,28 @@ public class ReportActivity extends AppCompatActivity {
             }
 
             document.close();
-            Log.d(TAG, "PDF berhasil dibuat");
+            Log.d(TAG, "PDF berhasil dibuat di: " + pdfPath);
         } catch (Exception e) {
             Log.e(TAG, "Error saat membuat PDF: " + e.getMessage());
             e.printStackTrace();
         }
     }
+
+    private void addHeader(com.itextpdf.text.Document document) throws com.itextpdf.text.DocumentException {
+        // Tambahkan elemen kepala (header) ke dokumen di sini
+        com.itextpdf.text.Paragraph header = new com.itextpdf.text.Paragraph();
+        header.add(new com.itextpdf.text.Chunk("Laporan Parkir Politeknik Negeri Lampung", new com.itextpdf.text.Font(com.itextpdf.text.Font.FontFamily.TIMES_ROMAN, 16, com.itextpdf.text.Font.BOLD)));
+        header.add(new com.itextpdf.text.Chunk("\nTanggal: " + getCurrentDate(), new com.itextpdf.text.Font(com.itextpdf.text.Font.FontFamily.TIMES_ROMAN, 12, com.itextpdf.text.Font.NORMAL)));
+        header.add(new com.itextpdf.text.Chunk("\n ", new com.itextpdf.text.Font(com.itextpdf.text.Font.FontFamily.TIMES_ROMAN, 12, com.itextpdf.text.Font.NORMAL)));
+
+        // Tambahkan ke dokumen
+        document.add(header);
+    }
+
+    private String getCurrentDate() {
+        return new SimpleDateFormat("yyyy-MM-dd").format(new Date());
+    }
+
 
     // Metode untuk menangani respons izin
     @Override
