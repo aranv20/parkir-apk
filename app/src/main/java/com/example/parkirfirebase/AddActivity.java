@@ -24,6 +24,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import com.example.parkirfirebase.history.LokasiModel;
+import com.example.parkirfirebase.printqr.BluetoothPrinterHelper;
 import com.example.parkirfirebase.printqr.PrintBT;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -58,6 +59,7 @@ public class AddActivity extends AppCompatActivity {
     private Bitmap capturedImage; // Menyimpan gambar yang diambil dari kamera
     private static final int REQUEST_IMAGE_CAPTURE = 1;
     private PrintBT printBT;
+    private BluetoothPrinterHelper bluetoothPrinterHelper = new BluetoothPrinterHelper();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -117,7 +119,7 @@ public class AddActivity extends AppCompatActivity {
                     String lokasiString = lokasi.getSelectedItem().toString();
 
                     try {
-                        String imageUrl = uploadToFirebase(capturedImage, lokasiString,new Date());
+                        String imageUrl = uploadToFirebase(capturedImage, lokasiString, new Date());
 
                         // Menggabungkan informasi dari spinner dengan timestamp
                         LokasiModel lokasiModel = new LokasiModel(lokasiString, imageUrl, new Date());
@@ -130,10 +132,8 @@ public class AddActivity extends AppCompatActivity {
 
                         imageView.setImageBitmap(bitmap);
 
-                        // Perbaiki pemanggilan metode printQRCode
-                        Bitmap qrBit = printQRCode(combinedInfo);
-                        // Print QR Code melalui Bluetooth
-                        //printQRCodeViaBluetooth(qrBit);
+                        // Cetak QR Code melalui Bluetooth
+                        printQRCodeViaBluetooth(bitmap);
                     } catch (WriterException e) {
                         e.printStackTrace();
                         Toast.makeText(AddActivity.this, "Gagal membuat QR code: " + e.getMessage(), Toast.LENGTH_SHORT).show();
@@ -145,19 +145,28 @@ public class AddActivity extends AppCompatActivity {
         });
     }
 
-//    private void printQRCodeViaBluetooth(Bitmap qrBit) {
-//        try {
-//            // Mendapatkan BluetoothDevice yang ingin Anda hubungkan
-//            BluetoothDevice bluetoothDevice = ...; // Inisialisasi dengan BluetoothDevice yang sesuai
-//
-//            // Memanggil metode printQRCodeViaBluetooth dengan BluetoothDevice
-//            printBT.printQRCodeViaBluetooth(qrBit, bluetoothDevice);
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//            // Tangani kesalahan koneksi Bluetooth
-//            Toast.makeText(this, "Gagal terhubung ke perangkat Bluetooth", Toast.LENGTH_SHORT).show();
-//        }
-//    }
+    private void printQRCodeViaBluetooth(Bitmap qrBit) {
+        try {
+            // Pastikan untuk mengganti "YOUR_BLUETOOTH_DEVICE_ADDRESS" dengan alamat printer Bluetooth yang sesungguhnya
+            String alamatBluetoothPrinter = "86:67:7A:62:7C:OE";
+            if (bluetoothPrinterHelper.connectToBluetoothPrinter(alamatBluetoothPrinter)) {
+                // Mengonversi Bitmap ke bentuk byte array
+                ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                qrBit.compress(Bitmap.CompressFormat.PNG, 100, stream);
+                byte[] byteArray = stream.toByteArray();
+
+                // Cetak data byte array
+                bluetoothPrinterHelper.printData(byteArray);
+
+                Toast.makeText(this, "QR Code berhasil dicetak", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(this, "Gagal terhubung ke printer Bluetooth", Toast.LENGTH_SHORT).show();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            Toast.makeText(this, "Error mencetak QR Code: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
+    }
     
     private Bitmap printQRCode(String textToQR) {
         MultiFormatWriter multiFormatWriter = new MultiFormatWriter();
