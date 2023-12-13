@@ -25,30 +25,26 @@ public class BluetoothPrinterHelper {
     private OutputStream outputStream;
     private Context context;
 
-    // Konstruktor menerima Context untuk memastikan penanganan izin yang benar
     public BluetoothPrinterHelper(Context context) {
         this.context = context;
     }
 
-    // Metode untuk memulai koneksi Bluetooth secara asinkron
     public void connectToBluetoothPrinterAsync(String address, OnBluetoothConnectListener listener) {
-        // Periksa izin Bluetooth sebelum menjalankan AsyncTask
         if (checkBluetoothPermission()) {
             new ConnectBluetoothTask(listener).execute(address);
         } else {
-            // Mintalah izin Bluetooth jika belum diberikan
             ActivityCompat.requestPermissions((Activity) context, new String[]{Manifest.permission.BLUETOOTH}, BLUETOOTH_PERMISSION_REQUEST_CODE);
-            // Alternatifnya, Anda dapat memberi tahu pengguna atau mengambil tindakan lain yang sesuai
         }
     }
 
-    // Metode untuk mengecek izin Bluetooth
     private boolean checkBluetoothPermission() {
-        // Periksa apakah izin Bluetooth sudah diberikan
         return bluetoothAdapter != null && bluetoothAdapter.isEnabled();
     }
 
-    // AsyncTask untuk menjalankan koneksi Bluetooth secara asinkron
+    public boolean isBluetoothConnected() {
+        return socket != null && socket.isConnected();
+    }
+
     private class ConnectBluetoothTask extends AsyncTask<String, Void, Boolean> {
 
         private OnBluetoothConnectListener listener;
@@ -60,12 +56,9 @@ public class BluetoothPrinterHelper {
         @Override
         protected Boolean doInBackground(String... params) {
             String address = params[0];
-
-            // Periksa izin sebelum melakukan koneksi Bluetooth
             if (checkBluetoothPermission()) {
                 return connectToBluetoothPrinter(address);
             } else {
-                // Tangani kasus ketika izin tidak diberikan
                 return false;
             }
         }
@@ -82,21 +75,21 @@ public class BluetoothPrinterHelper {
         }
     }
 
-    // Metode onRequestPermissionsResult untuk menanggapi hasil permintaan izin
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         if (requestCode == BLUETOOTH_PERMISSION_REQUEST_CODE) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                // Izin diberikan, panggil metode yang memerlukan izin di sini
-                // Tambahkan logika yang sesuai dengan kebutuhan aplikasi Anda
+                // Izin diberikan, lakukan tindakan yang memerlukan izin di sini
             } else {
                 // Izin ditolak, lakukan penanganan izin ditolak di sini
-                // Tambahkan logika yang sesuai dengan kebutuhan aplikasi Anda
             }
         }
     }
 
-    // Metode untuk menjalankan koneksi Bluetooth
     private boolean connectToBluetoothPrinter(String address) {
+        if (!isBluetoothSupported()) {
+            return false;
+        }
+
         BluetoothDevice device = bluetoothAdapter.getRemoteDevice(address);
         UUID uuid = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
 
@@ -111,13 +104,11 @@ public class BluetoothPrinterHelper {
         }
     }
 
-    // Antarmuka untuk mendengarkan koneksi Bluetooth
     public interface OnBluetoothConnectListener {
         void onConnectSuccess();
         void onConnectFailure();
     }
 
-    // Metode untuk mencetak data ke printer Bluetooth
     public void printData(byte[] data) {
         if (outputStream != null) {
             try {
@@ -130,7 +121,6 @@ public class BluetoothPrinterHelper {
         }
     }
 
-    // Metode untuk menutup koneksi dan sumber daya
     private void closeConnection() {
         try {
             if (outputStream != null) {
@@ -140,12 +130,16 @@ public class BluetoothPrinterHelper {
             e.printStackTrace();
         } finally {
             try {
-                if (socket != null) {
+                if (socket != null && socket.isConnected()) {
                     socket.close();
                 }
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
+    }
+
+    private boolean isBluetoothSupported() {
+        return bluetoothAdapter != null;
     }
 }

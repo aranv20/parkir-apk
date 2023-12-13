@@ -139,9 +139,9 @@ public class AddActivity extends AppCompatActivity {
         });
     }
 
-    private Bitmap generateQRCode(String data, int width, int height) {
+    private Bitmap generateQRCode(String combinedInfo, int width, int height) {
         try {
-            BitMatrix bitMatrix = new MultiFormatWriter().encode(data, BarcodeFormat.QR_CODE, width, height);
+            BitMatrix bitMatrix = new MultiFormatWriter().encode(combinedInfo, BarcodeFormat.QR_CODE, width, height);
             BarcodeEncoder barcodeEncoder = new BarcodeEncoder();
             return barcodeEncoder.createBitmap(bitMatrix);
         } catch (Exception e) {
@@ -156,15 +156,41 @@ public class AddActivity extends AppCompatActivity {
         bluetoothPrinterHelper.connectToBluetoothPrinterAsync(alamatBluetoothPrinter, new BluetoothPrinterHelper.OnBluetoothConnectListener() {
             @Override
             public void onConnectSuccess() {
-                // Mengonversi Bitmap ke bentuk byte array
+                // Mengonversi Bitmap ke bentuk byte array (misalnya, format PNG)
                 ByteArrayOutputStream stream = new ByteArrayOutputStream();
                 qrBitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
                 byte[] byteArray = stream.toByteArray();
 
+                // Menambahkan pembukaan dan penutupan (contoh: ESC/P Command)
+                byte[] openingCommand = new byte[]{0x1B, 0x40};  // ESC @ untuk pembukaan
+                byte[] closingCommand = new byte[]{0x1B, 0x4A, 0x00};  // ESC J 0 untuk penutupan
+
+                // Menggabungkan semua data yang akan dicetak
+                byte[] dataToPrint = concatenateByteArrays(openingCommand, byteArray, closingCommand);
+
                 // Cetak data byte array
-                bluetoothPrinterHelper.printData(byteArray);
+                bluetoothPrinterHelper.printData(dataToPrint);
+
+                // Atur QR code pada ImageView setelah pencetakan berhasil
+                qrCode.setImageBitmap(qrBitmap);
 
                 Toast.makeText(AddActivity.this, "QR Code berhasil dicetak", Toast.LENGTH_SHORT).show();
+            }
+
+            private byte[] concatenateByteArrays(byte[]... arrays) {
+                int totalLength = 0;
+                for (byte[] array : arrays) {
+                    totalLength += array.length;
+                }
+
+                byte[] result = new byte[totalLength];
+                int currentIndex = 0;
+                for (byte[] array : arrays) {
+                    System.arraycopy(array, 0, result, currentIndex, array.length);
+                    currentIndex += array.length;
+                }
+
+                return result;
             }
 
             @Override
