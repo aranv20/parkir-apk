@@ -25,7 +25,6 @@ import androidx.core.content.ContextCompat;
 
 import com.example.parkirfirebase.history.LokasiModel;
 import com.example.parkirfirebase.printqr.BluetoothPrinterHelper;
-import com.example.parkirfirebase.printqr.PrintBT;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -40,9 +39,9 @@ import com.google.zxing.common.BitMatrix;
 import com.journeyapps.barcodescanner.BarcodeEncoder;
 
 import java.io.ByteArrayOutputStream;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.text.SimpleDateFormat;
 
 public class AddActivity extends AppCompatActivity {
 
@@ -58,16 +57,12 @@ public class AddActivity extends AppCompatActivity {
     private QuerySnapshot cities = null;
     private Bitmap capturedImage; // Menyimpan gambar yang diambil dari kamera
     private static final int REQUEST_IMAGE_CAPTURE = 1;
-    private PrintBT printBT;
-    private BluetoothPrinterHelper bluetoothPrinterHelper = new BluetoothPrinterHelper();
+    private BluetoothPrinterHelper bluetoothPrinterHelper = new BluetoothPrinterHelper(this);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add);
-
-        // Inisialisasi objek printBT
-        //printBT = new PrintBT();
 
         firebaseStorage = FirebaseStorage.getInstance();
         mStorageRef = firebaseStorage.getReference();
@@ -76,7 +71,6 @@ public class AddActivity extends AppCompatActivity {
         lokasi = findViewById(R.id.lokasi);
         gambar = findViewById(R.id.gambar);
         qrCode = findViewById(R.id.qrCode);
-        ImageView imageView = findViewById(R.id.qrCode);
         progressDialog = new ProgressDialog(AddActivity.this);
         progressDialog.setTitle("Loading");
         progressDialog.setMessage("Tunggu sebentar...");
@@ -130,7 +124,7 @@ public class AddActivity extends AppCompatActivity {
                         BarcodeEncoder barcodeEncoder = new BarcodeEncoder();
                         Bitmap bitmap = barcodeEncoder.createBitmap(bitMatrix);
 
-                        imageView.setImageBitmap(bitmap);
+                        qrCode.setImageBitmap(bitmap);
 
                         // Cetak QR Code melalui Bluetooth
                         printQRCodeViaBluetooth(bitmap);
@@ -145,39 +139,39 @@ public class AddActivity extends AppCompatActivity {
         });
     }
 
-    private void printQRCodeViaBluetooth(Bitmap qrBit) {
+    private Bitmap generateQRCode(String data, int width, int height) {
         try {
-            // Pastikan untuk mengganti "YOUR_BLUETOOTH_DEVICE_ADDRESS" dengan alamat printer Bluetooth yang sesungguhnya
-            String alamatBluetoothPrinter = "86:67:7A:62:7C:OE";
-            if (bluetoothPrinterHelper.connectToBluetoothPrinter(alamatBluetoothPrinter)) {
+            BitMatrix bitMatrix = new MultiFormatWriter().encode(data, BarcodeFormat.QR_CODE, width, height);
+            BarcodeEncoder barcodeEncoder = new BarcodeEncoder();
+            return barcodeEncoder.createBitmap(bitMatrix);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null; // or handle the exception as needed
+        }
+    }
+
+    private void printQRCodeViaBluetooth(Bitmap qrBitmap) {
+        // Pastikan untuk mengganti "YOUR_BLUETOOTH_DEVICE_ADDRESS" dengan alamat printer Bluetooth yang sesungguhnya
+        String alamatBluetoothPrinter = "86:67:7A:62:7C:0E";
+        bluetoothPrinterHelper.connectToBluetoothPrinterAsync(alamatBluetoothPrinter, new BluetoothPrinterHelper.OnBluetoothConnectListener() {
+            @Override
+            public void onConnectSuccess() {
                 // Mengonversi Bitmap ke bentuk byte array
                 ByteArrayOutputStream stream = new ByteArrayOutputStream();
-                qrBit.compress(Bitmap.CompressFormat.PNG, 100, stream);
+                qrBitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
                 byte[] byteArray = stream.toByteArray();
 
                 // Cetak data byte array
                 bluetoothPrinterHelper.printData(byteArray);
 
-                Toast.makeText(this, "QR Code berhasil dicetak", Toast.LENGTH_SHORT).show();
-            } else {
-                Toast.makeText(this, "Gagal terhubung ke printer Bluetooth", Toast.LENGTH_SHORT).show();
+                Toast.makeText(AddActivity.this, "QR Code berhasil dicetak", Toast.LENGTH_SHORT).show();
             }
-        } catch (Exception e) {
-            e.printStackTrace();
-            Toast.makeText(this, "Error mencetak QR Code: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-        }
-    }
-    
-    private Bitmap printQRCode(String textToQR) {
-        MultiFormatWriter multiFormatWriter = new MultiFormatWriter();
-        try {
-            BitMatrix bitMatrix = multiFormatWriter.encode(textToQR, BarcodeFormat.QR_CODE, 300, 300);
-            BarcodeEncoder barcodeEncoder = new BarcodeEncoder();
-            return barcodeEncoder.createBitmap(bitMatrix);
-        } catch (WriterException e) {
-            e.printStackTrace();
-            return null;
-        }
+
+            @Override
+            public void onConnectFailure() {
+                Toast.makeText(AddActivity.this, "Gagal terhubung ke printer Bluetooth", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private void getData() {
@@ -280,20 +274,10 @@ public class AddActivity extends AppCompatActivity {
         String combinedInfo = lokasi + "_" + imageUrl + "_" + formattedDate;
 
         // Menghasilkan QR code dari informasi yang digabungkan
-        BitMatrix bitMatrix = null;
-        try {
-            bitMatrix = new MultiFormatWriter().encode(combinedInfo, BarcodeFormat.QR_CODE, 300, 300);
-        } catch (WriterException e) {
-            e.printStackTrace();
-            Toast.makeText(AddActivity.this, "Gagal membuat QR code: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        BarcodeEncoder barcodeEncoder = new BarcodeEncoder();
-        Bitmap qrBitmap = barcodeEncoder.createBitmap(bitMatrix);
+        Bitmap bitmap = generateQRCode(combinedInfo, 300, 300);
 
         // Tampilkan QR code di ImageView
-        qrCode.setImageBitmap(qrBitmap);
+        qrCode.setImageBitmap(bitmap);
 
         // Membuat objek LokasiModel baru
         LokasiModel lokasiModel = new LokasiModel(lokasi, imageUrl, date);
