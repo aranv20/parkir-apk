@@ -49,8 +49,8 @@ public class AddActivity extends AppCompatActivity {
     private FirebaseStorage firebaseStorage;
     private StorageReference mStorageRef;
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
-    private ImageView gambar, qrCode;
-    private Button cameraBtn, upload;
+    private ImageView gambar, qrCode,imageView;
+    private Button upload;
     private ArrayAdapter<String> adapter;
     private ArrayList<String> pilok = new ArrayList<>();
     private ProgressDialog progressDialog;
@@ -67,9 +67,9 @@ public class AddActivity extends AppCompatActivity {
         firebaseStorage = FirebaseStorage.getInstance();
         mStorageRef = firebaseStorage.getReference();
 
-        cameraBtn = findViewById(R.id.cameraBtn);
+
         lokasi = findViewById(R.id.lokasi);
-        gambar = findViewById(R.id.gambar);
+        imageView = findViewById(R.id.gambar);
         qrCode = findViewById(R.id.qrCode);
         progressDialog = new ProgressDialog(AddActivity.this);
         progressDialog.setTitle("Loading");
@@ -95,7 +95,7 @@ public class AddActivity extends AppCompatActivity {
 
         getData();
 
-        cameraBtn.setOnClickListener(new View.OnClickListener() {
+        imageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (ContextCompat.checkSelfPermission(AddActivity.this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
@@ -258,7 +258,7 @@ public class AddActivity extends AppCompatActivity {
         if (resultCode == Activity.RESULT_OK) {
             if (requestCode == REQUEST_IMAGE_CAPTURE && data != null && data.getExtras() != null) {
                 capturedImage = (Bitmap) data.getExtras().get("data");
-                gambar.setImageBitmap(capturedImage);
+                imageView.setImageBitmap(capturedImage);
             }
         }
     }
