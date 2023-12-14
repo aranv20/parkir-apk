@@ -1,10 +1,59 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".HomeFragment">
+
+    <ImageView
+        android:id="@+id/parking"
+        android:layout_width="128dp"
+        android:layout_height="128dp"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginTop="222dp"
+        android:layout_marginEnd="74dp"
+        android:layout_marginRight="20dp"
+        android:background="@color/lavender"
+        android:src="@drawable/baseline_car_24" />
+
+    <ImageView
+        android:id="@+id/home"
+        android:layout_width="128dp"
+        android:layout_height="128dp"
+        android:layout_alignParentTop="true"
+        android:layout_marginLeft="20dp"
+        android:layout_marginTop="222dp"
+        android:layout_marginEnd="51dp"
+        android:layout_toStartOf="@+id/parking"
+        android:background="@color/lavender"
+        android:src="@drawable/baseline_home_24" />
+
+    <ImageView
+        android:id="@+id/profile"
+        android:layout_width="128dp"
+        android:layout_height="128dp"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginEnd="74dp"
+        android:layout_marginRight="20dp"
+        android:layout_marginBottom="174dp"
+        android:background="@color/lavender"
+        android:src="@drawable/baseline_account_24" />
+
+    <ImageView
+        android:id="@+id/history"
+        android:layout_width="128dp"
+        android:layout_height="128dp"
+        android:layout_alignParentBottom="true"
+        android:layout_marginTop="100dp"
+        android:layout_marginEnd="51dp"
+        android:layout_marginRight="20dp"
+        android:layout_marginBottom="174dp"
+        android:layout_toStartOf="@+id/profile"
+        android:background="@color/lavender"
+        android:src="@drawable/baseline_file_24" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/layoutHeader"
@@ -28,4 +77,4 @@
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+</RelativeLayout>
