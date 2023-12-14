@@ -13,7 +13,7 @@
         android:layout_alignParentTop="true"
         android:layout_alignParentEnd="true"
         android:layout_marginTop="222dp"
-        android:layout_marginEnd="38dp"
+        android:layout_marginEnd="50dp"
         android:layout_marginRight="20dp"
         android:background="@color/lavender"
         android:src="@drawable/baseline_car_24"
@@ -85,7 +85,7 @@
         android:layout_height="128dp"
         android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true"
-        android:layout_marginEnd="38dp"
+        android:layout_marginEnd="50dp"
         android:layout_marginRight="20dp"
         android:layout_marginBottom="174dp"
         android:background="@color/lavender"
@@ -103,6 +103,7 @@
         android:layout_toStartOf="@+id/profile"
         android:background="@color/lavender"
         android:src="@drawable/baseline_file_24" />
+
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/layoutHeader"
@@ -125,5 +126,16 @@
             app:layout_constraintTop_toTopOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="100dp"
+        android:text="Fitur Aplikasi"
+        android:textStyle="bold"
+        android:layout_marginStart="140dp"
+        android:textColor="@color/lavender"
+        android:textSize="30sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
 </RelativeLayout>
