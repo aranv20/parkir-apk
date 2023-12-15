@@ -6,105 +6,6 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".HomeFragment">
 
-    <ImageView
-        android:id="@+id/parking"
-        android:layout_width="128dp"
-        android:layout_height="128dp"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentEnd="true"
-        android:layout_marginTop="222dp"
-        android:layout_marginEnd="50dp"
-        android:layout_marginRight="20dp"
-        android:background="@color/lavender"
-        android:src="@drawable/baseline_car_24"
-        />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/home"
-        android:layout_alignParentEnd="true"
-        android:layout_marginTop="-1dp"
-        android:layout_marginEnd="260dp"
-        android:text="Home"
-        android:textColor="@color/lavender"
-        android:textStyle="bold"
-        android:textSize="15sp" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/home"
-        android:layout_alignParentEnd="true"
-        android:layout_marginTop="207dp"
-        android:layout_marginEnd="257dp"
-        android:text="History"
-        android:textColor="@color/lavender"
-        android:textStyle="bold"
-        android:textSize="15sp" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/home"
-        android:layout_alignParentEnd="true"
-        android:layout_marginTop="208dp"
-        android:layout_marginEnd="80dp"
-        android:text="Profile"
-        android:textColor="@color/lavender"
-        android:textStyle="bold"
-        android:textSize="15sp" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/home"
-        android:layout_alignParentEnd="true"
-        android:layout_marginTop="-1dp"
-        android:layout_marginEnd="80dp"
-        android:text="Parking"
-        android:textColor="@color/lavender"
-        android:textStyle="bold"
-        android:textSize="15sp" />
-
-    <ImageView
-        android:id="@+id/home"
-        android:layout_width="128dp"
-        android:layout_height="128dp"
-        android:layout_alignParentTop="true"
-        android:layout_marginLeft="20dp"
-        android:layout_marginTop="222dp"
-        android:layout_marginEnd="51dp"
-        android:layout_toStartOf="@+id/parking"
-        android:background="@color/lavender"
-        android:src="@drawable/baseline_home_24" />
-
-    <ImageView
-        android:id="@+id/profile"
-        android:layout_width="128dp"
-        android:layout_height="128dp"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentBottom="true"
-        android:layout_marginEnd="50dp"
-        android:layout_marginRight="20dp"
-        android:layout_marginBottom="174dp"
-        android:background="@color/lavender"
-        android:src="@drawable/baseline_account_24" />
-
-    <ImageView
-        android:id="@+id/history"
-        android:layout_width="128dp"
-        android:layout_height="128dp"
-        android:layout_alignParentBottom="true"
-        android:layout_marginTop="100dp"
-        android:layout_marginEnd="51dp"
-        android:layout_marginRight="20dp"
-        android:layout_marginBottom="174dp"
-        android:layout_toStartOf="@+id/profile"
-        android:background="@color/lavender"
-        android:src="@drawable/baseline_file_24" />
-
-
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/layoutHeader"
         android:layout_width="match_parent"
@@ -126,16 +27,5 @@
             app:layout_constraintTop_toTopOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="100dp"
-        android:text="Fitur Aplikasi"
-        android:textStyle="bold"
-        android:layout_marginStart="140dp"
-        android:textColor="@color/lavender"
-        android:textSize="30sp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
 
 </RelativeLayout>
