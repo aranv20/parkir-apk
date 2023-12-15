@@ -21,8 +21,14 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 public class HistoryFragment extends Fragment {
 
@@ -55,6 +61,7 @@ public class HistoryFragment extends Fragment {
         // Ambil data dari koleksi "parking" di Firestore
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
+        // Ambil data dari koleksi "parking" di Firestore
         db.collection("parking")
                 .get()
                 .addOnCompleteListener(task -> {
@@ -74,20 +81,50 @@ public class HistoryFragment extends Fragment {
                                 // Tambahkan ke daftar jika kedua field ada
                                 ImageModel imageModel = new ImageModel(imageUrl, namaLokasi, waktu);
                                 imageList.add(imageModel);
-                                imageAdapter.notifyDataSetChanged();
                             } else {
                                 // Tangani jika field tidak lengkap
                                 // Misalnya, log atau tampilkan pesan kesalahan
                                 // atau tambahkan langkah-langkah yang sesuai.
                             }
                         }
+
+                        // Urutkan imageList berdasarkan lokasi (namaLokasi) dan waktu
+                        Collections.sort(imageList, new Comparator<ImageModel>() {
+                            @Override
+                            public int compare(ImageModel image1, ImageModel image2) {
+                                // Pertama, bandingkan berdasarkan namaLokasi
+                                int compareByLocation = image1.getNamaLokasi().compareTo(image2.getNamaLokasi());
+
+                                // Jika namaLokasi sama, bandingkan berdasarkan waktu
+                                if (compareByLocation == 0) {
+                                    SimpleDateFormat dateFormat = new SimpleDateFormat("EEE MMM dd HH:mm:ss zzz yyyy", Locale.US);
+
+                                    Date date1, date2;
+                                    try {
+                                        date1 = dateFormat.parse(image1.getWaktu());
+                                        date2 = dateFormat.parse(image2.getWaktu());
+                                    } catch (ParseException e) {
+                                        e.printStackTrace();
+                                        return 0;
+                                    }
+
+                                    // Urutkan secara menaik berdasarkan waktu
+                                    return date1.compareTo(date2);
+                                }
+
+                                return compareByLocation;
+                            }
+                        });
+
+                        // Beri tahu adapter setelah pengurutan
+                        imageAdapter.notifyDataSetChanged();
                     } else {
                         // Tangani kesalahan
                         Log.e(TAG, "Error getting documents: ", task.getException());
                     }
                 });
 
-        // Inisialisasi ExtendedFloatingActionButton
+        // Inisialisasi ExtendedFloatingActionButton di luar callback
         extendedFloatingActionButton = view.findViewById(R.id.btn_laporan);
         extendedFloatingActionButton.setOnClickListener(v -> generatePDFAndDownload());
 
