@@ -49,8 +49,8 @@ public class AddActivity extends AppCompatActivity {
     private FirebaseStorage firebaseStorage;
     private StorageReference mStorageRef;
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
-    private ImageView gambar, qrCode,imageView;
-    private Button upload;
+    private ImageView gambar, qrCode, imageView;
+    private Button upload, printButton; // Tambahkan referensi Button untuk Print QR Code
     private ArrayAdapter<String> adapter;
     private ArrayList<String> pilok = new ArrayList<>();
     private ProgressDialog progressDialog;
@@ -58,6 +58,8 @@ public class AddActivity extends AppCompatActivity {
     private Bitmap capturedImage; // Menyimpan gambar yang diambil dari kamera
     private static final int REQUEST_IMAGE_CAPTURE = 1;
     private BluetoothPrinterHelper bluetoothPrinterHelper = new BluetoothPrinterHelper(this);
+    private Bitmap bitmap; // Tambahkan variabel bitmap untuk menyimpan QR code
+    private boolean isQRCodeGenerated = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,7 +69,6 @@ public class AddActivity extends AppCompatActivity {
         firebaseStorage = FirebaseStorage.getInstance();
         mStorageRef = firebaseStorage.getReference();
 
-
         lokasi = findViewById(R.id.lokasi);
         imageView = findViewById(R.id.gambar);
         qrCode = findViewById(R.id.qrCode);
@@ -76,6 +77,7 @@ public class AddActivity extends AppCompatActivity {
         progressDialog.setMessage("Tunggu sebentar...");
 
         upload = findViewById(R.id.upload);
+        printButton = findViewById(R.id.print); // Inisialisasi Print QR Code button
 
         lokasi.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
@@ -109,31 +111,53 @@ public class AddActivity extends AppCompatActivity {
         upload.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (capturedImage != null) {
-                    String lokasiString = lokasi.getSelectedItem().toString();
+                if (!isQRCodeGenerated) { // Check apakah QR code sudah di-generate
+                    if (capturedImage != null) {
+                        String lokasiString = lokasi.getSelectedItem().toString();
 
-                    try {
-                        String imageUrl = uploadToFirebase(capturedImage, lokasiString, new Date());
+                        try {
+                            String imageUrl = uploadToFirebase(capturedImage, lokasiString, new Date());
 
-                        // Menggabungkan informasi dari spinner dengan timestamp
-                        LokasiModel lokasiModel = new LokasiModel(lokasiString, imageUrl, new Date());
-                        String combinedInfo = lokasiModel.getNamaLokasi() + "_" + lokasiModel.getImageUrl() + "_" + lokasiModel.getWaktu();
+                            // Menggabungkan informasi dari spinner dengan timestamp
+                            LokasiModel lokasiModel = new LokasiModel(lokasiString, imageUrl, new Date());
+                            String combinedInfo = lokasiModel.getNamaLokasi() + "_" + lokasiModel.getImageUrl() + "_" + lokasiModel.getWaktu();
 
-                        // Menghasilkan QR code dari informasi yang digabungkan
-                        BitMatrix bitMatrix = new MultiFormatWriter().encode(combinedInfo, BarcodeFormat.QR_CODE, 300, 300);
-                        BarcodeEncoder barcodeEncoder = new BarcodeEncoder();
-                        Bitmap bitmap = barcodeEncoder.createBitmap(bitMatrix);
+                            // Menghasilkan QR code dari informasi yang digabungkan
+                            BitMatrix bitMatrix = new MultiFormatWriter().encode(combinedInfo, BarcodeFormat.QR_CODE, 300, 300);
+                            BarcodeEncoder barcodeEncoder = new BarcodeEncoder();
+                            bitmap = barcodeEncoder.createBitmap(bitMatrix);
 
-                        qrCode.setImageBitmap(bitmap);
+                            qrCode.setImageBitmap(bitmap);
 
-                        // Cetak QR Code melalui Bluetooth
-                        printQRCodeViaBluetooth(bitmap);
-                    } catch (WriterException e) {
-                        e.printStackTrace();
-                        Toast.makeText(AddActivity.this, "Gagal membuat QR code: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                            // Set flag menjadi true karena QR code sudah di-generate
+                            isQRCodeGenerated = true;
+
+                            // Tambahkan kode lain yang diperlukan setelah QR code di-generate
+                            // ...
+
+                        } catch (WriterException e) {
+                            e.printStackTrace();
+                            Toast.makeText(AddActivity.this, "Gagal membuat QR code: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                        }
+                    } else {
+                        Toast.makeText(AddActivity.this, "Ambil gambar terlebih dahulu sebelum generate QR code.", Toast.LENGTH_SHORT).show();
                     }
                 } else {
-                    Toast.makeText(AddActivity.this, "Ambil gambar terlebih dahulu sebelum generate QR code.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(AddActivity.this, "QR code sudah di-generate sebelumnya.", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
+        // Tambahkan click listener untuk Print QR Code button
+        printButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Periksa apakah QR code bitmap tidak null dan sudah di-generate sebelum mencoba mencetak
+                if (bitmap != null && isQRCodeGenerated) {
+                    // Cetak QR Code melalui Bluetooth
+                    printQRCodeViaBluetooth(bitmap);
+                } else {
+                    Toast.makeText(AddActivity.this, "Generate QR code terlebih dahulu sebelum mencetak.", Toast.LENGTH_SHORT).show();
                 }
             }
         });

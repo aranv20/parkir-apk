@@ -45,6 +45,16 @@ public class BluetoothPrinterHelper {
         return socket != null && socket.isConnected();
     }
 
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        if (requestCode == BLUETOOTH_PERMISSION_REQUEST_CODE) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                // Izin diberikan, lakukan tindakan yang memerlukan izin di sini
+            } else {
+                // Izin ditolak, lakukan penanganan izin ditolak di sini
+            }
+        }
+    }
+
     private class ConnectBluetoothTask extends AsyncTask<String, Void, Boolean> {
 
         private OnBluetoothConnectListener listener;
@@ -71,16 +81,6 @@ public class BluetoothPrinterHelper {
                 } else {
                     listener.onConnectFailure();
                 }
-            }
-        }
-    }
-
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-        if (requestCode == BLUETOOTH_PERMISSION_REQUEST_CODE) {
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                // Izin diberikan, lakukan tindakan yang memerlukan izin di sini
-            } else {
-                // Izin ditolak, lakukan penanganan izin ditolak di sini
             }
         }
     }
@@ -113,13 +113,16 @@ public class BluetoothPrinterHelper {
         if (outputStream != null) {
             try {
                 outputStream.write(data);
-            } catch (IOException e) {
+                // Tambahkan penundaan jika diperlukan untuk memberikan waktu printer untuk memproses data
+                Thread.sleep(1000);
+            } catch (IOException | InterruptedException e) {
                 e.printStackTrace();
             } finally {
                 closeConnection();
             }
         }
     }
+
 
     private void closeConnection() {
         try {
