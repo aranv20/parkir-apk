@@ -175,7 +175,7 @@ public class AddActivity extends AppCompatActivity {
     }
 
     private void printQRCodeViaBluetooth(Bitmap qrBitmap) {
-        // Pastikan untuk mengganti "YOUR_BLUETOOTH_DEVICE_ADDRESS" dengan alamat printer Bluetooth yang sesungguhnya
+        // Pastikan untuk mengganti dengan alamat printer Bluetooth yang sesungguhnya
         String alamatBluetoothPrinter = "86:67:7A:62:7C:0E";
         bluetoothPrinterHelper.connectToBluetoothPrinterAsync(alamatBluetoothPrinter, new BluetoothPrinterHelper.OnBluetoothConnectListener() {
             @Override
