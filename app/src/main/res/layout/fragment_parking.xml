@@ -7,8 +7,9 @@
     tools:context=".ParkingFragment">
 
     <ImageView
-        android:layout_width="match_parent"
-        android:layout_height="700dp"
+        android:layout_width="wrap_content"
+        android:layout_marginTop="50dp"
+        android:layout_height="650dp"
         android:background="@drawable/p"/>
 
 
