@@ -6,9 +6,7 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
-import android.media.MediaScannerConnection;
 import android.os.Bundle;
-import android.os.Environment;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
@@ -40,8 +38,6 @@ import com.google.zxing.common.BitMatrix;
 import com.journeyapps.barcodescanner.BarcodeEncoder;
 
 import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -273,42 +269,6 @@ public class AddActivity extends AppCompatActivity {
                     Toast.makeText(AddActivity.this, "Gagal upload lokasi: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                     Log.e("Firestore", "Gagal upload lokasi: " + e.getMessage());
                 });
-    }
-
-    // Fungsi untuk menyimpan QR Code ke galeri perangkat
-    private void saveQRCodeToGallery(Bitmap qrBitmap) {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                == PackageManager.PERMISSION_GRANTED) {
-            try {
-                String folderPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES) + "/QR_Codes";
-                File folder = new File(folderPath);
-                if (!folder.exists()) {
-                    folder.mkdirs();
-                }
-
-                String filename = "QR_Code_" + System.currentTimeMillis() + ".jpg";
-                File file = new File(folder, filename);
-                FileOutputStream fos = new FileOutputStream(file);
-                qrBitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos);
-                fos.flush();
-                fos.close();
-
-                MediaScannerConnection.scanFile(this, new String[]{file.getPath()}, null,
-                        (path, uri) -> {
-                            Log.i("ExternalStorage", "Scanned " + path + ":");
-                            Log.i("ExternalStorage", "-> uri=" + uri);
-                        });
-
-                Toast.makeText(this, "QR Code berhasil disimpan di galeri", Toast.LENGTH_SHORT).show();
-            } catch (Exception e) {
-                e.printStackTrace();
-                Toast.makeText(this, "Gagal menyimpan QR Code ke galeri", Toast.LENGTH_SHORT).show();
-            }
-        } else {
-            ActivityCompat.requestPermissions(this,
-                    new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                    WRITE_EXTERNAL_STORAGE_PERMISSION_REQUEST);
-        }
     }
 
     // Fungsi untuk mencetak QR Code
