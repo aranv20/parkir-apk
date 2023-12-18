@@ -6,6 +6,7 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Log;
@@ -22,7 +23,6 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-import androidx.print.PrintHelper;
 
 import com.example.parkirfirebase.history.LokasiModel;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -50,16 +50,14 @@ public class AddActivity extends AppCompatActivity {
     private StorageReference mStorageRef;
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
     private ImageView gambar, qrCode, imageView;
-    private Button upload, printButton;
+    private Button upload;
     private ArrayAdapter<String> adapter;
     private ArrayList<String> pilok = new ArrayList<>();
     private ProgressDialog progressDialog;
     private QuerySnapshot cities = null;
     private Bitmap capturedImage;
     private static final int REQUEST_IMAGE_CAPTURE = 1;
-    private Bitmap bitmap;
     private boolean isQRCodeGenerated = false;
-    private static final int WRITE_EXTERNAL_STORAGE_PERMISSION_REQUEST = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -153,7 +151,7 @@ public class AddActivity extends AppCompatActivity {
 
             if (qrBitmap != null) {
                 qrCode.setImageBitmap(qrBitmap);
-                printQRCode(qrBitmap);
+                shareQRCode(qrBitmap, formattedDate);
             } else {
                 Toast.makeText(AddActivity.this, "Gagal membuat QR code", Toast.LENGTH_SHORT).show();
             }
@@ -271,16 +269,42 @@ public class AddActivity extends AppCompatActivity {
                 });
     }
 
-    // Fungsi untuk mencetak QR Code
-    private void printQRCode(Bitmap qrBitmap) {
-        // Membuat objek PrintHelper
-        PrintHelper printHelper = new PrintHelper(AddActivity.this);
+    // Fungsi untuk membagikan QR Code
+    private void shareQRCode(Bitmap bitmap, String formattedDate) {
+        try {
+            // Hasilkan URI dari bitmap
+            Uri uri = getImageUri(bitmap);
 
-        // Menyetel orientasi dan skala gambar yang akan dicetak
-        printHelper.setScaleMode(PrintHelper.SCALE_MODE_FIT);
-        printHelper.setOrientation(PrintHelper.ORIENTATION_PORTRAIT);
+            if (uri != null) {
+                // Bagikan gambar dengan memberikan izin pada URI
+                Intent shareIntent = new Intent(Intent.ACTION_SEND);
+                shareIntent.setType("image/png");
+                shareIntent.putExtra(Intent.EXTRA_STREAM, uri);
+                shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
 
-        // Mencetak gambar QR code
-        printHelper.printBitmap("QR_Code", qrBitmap);
+                // Cetak log atau tampilkan pesan Toast untuk memahami di mana kesalahan terjadi
+                Log.d("ShareQRCode", "Menggunakan URI: " + uri.toString());
+
+                startActivity(Intent.createChooser(shareIntent, "Bagikan Gambar QR Code"));
+            } else {
+                Toast.makeText(AddActivity.this, "Gagal menyimpan gambar QR code", Toast.LENGTH_SHORT).show();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            Toast.makeText(AddActivity.this, "Kesalahan saat membagikan QR code: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    // Fungsi untuk menghasilkan URI dari bitmap
+    private Uri getImageUri(Bitmap bitmap) {
+        try {
+            ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, bytes);
+            String path = MediaStore.Images.Media.insertImage(getContentResolver(), bitmap, "QRCode_" + System.currentTimeMillis(), null);
+            return Uri.parse(path);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 }
