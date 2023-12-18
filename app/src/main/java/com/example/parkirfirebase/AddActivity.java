@@ -6,7 +6,9 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.media.MediaScannerConnection;
 import android.os.Bundle;
+import android.os.Environment;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
@@ -24,7 +26,6 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import com.example.parkirfirebase.history.LokasiModel;
-import com.example.parkirfirebase.printqr.BluetoothPrinterHelper;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -39,6 +40,8 @@ import com.google.zxing.common.BitMatrix;
 import com.journeyapps.barcodescanner.BarcodeEncoder;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -57,9 +60,9 @@ public class AddActivity extends AppCompatActivity {
     private QuerySnapshot cities = null;
     private Bitmap capturedImage; // Menyimpan gambar yang diambil dari kamera
     private static final int REQUEST_IMAGE_CAPTURE = 1;
-    private BluetoothPrinterHelper bluetoothPrinterHelper = new BluetoothPrinterHelper(this);
     private Bitmap bitmap; // Tambahkan variabel bitmap untuk menyimpan QR code
     private boolean isQRCodeGenerated = false;
+    private static final int WRITE_EXTERNAL_STORAGE_PERMISSION_REQUEST = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -144,6 +147,18 @@ public class AddActivity extends AppCompatActivity {
                 }
             }
         });
+
+        printButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (isQRCodeGenerated && bitmap != null) {
+                    // Panggil metode untuk menyimpan QR code ke galeri
+                    saveQRCodeToGallery(bitmap);
+                } else {
+                    Toast.makeText(AddActivity.this, "QR code belum di-generate atau tidak tersedia", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
     }
 
     private Bitmap generateQRCode(String combinedInfo, int width, int height) {
@@ -156,7 +171,6 @@ public class AddActivity extends AppCompatActivity {
             return null; // or handle the exception as needed
         }
     }
-
 
     private void getData() {
         progressDialog.show();
@@ -276,5 +290,45 @@ public class AddActivity extends AppCompatActivity {
                     Toast.makeText(AddActivity.this, "Gagal upload lokasi: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                     Log.e("Firestore", "Gagal upload lokasi: " + e.getMessage());
                 });
+    }
+
+    private void saveQRCodeToGallery(Bitmap qrBitmap) {
+        // Pastikan aplikasi memiliki izin WRITE_EXTERNAL_STORAGE
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                == PackageManager.PERMISSION_GRANTED) {
+            try {
+                // Buat direktori untuk menyimpan gambar QR Code jika belum ada
+                String folderPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES) + "/QR_Codes";
+                File folder = new File(folderPath);
+                if (!folder.exists()) {
+                    folder.mkdirs();
+                }
+
+                // Simpan QR code ke galeri
+                String filename = "QR_Code_" + System.currentTimeMillis() + ".jpg";
+                File file = new File(folder, filename);
+                FileOutputStream fos = new FileOutputStream(file);
+                qrBitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos);
+                fos.flush();
+                fos.close();
+
+                // Pembaruan galeri
+                MediaScannerConnection.scanFile(this, new String[]{file.getPath()}, null,
+                        (path, uri) -> {
+                            Log.i("ExternalStorage", "Scanned " + path + ":");
+                            Log.i("ExternalStorage", "-> uri=" + uri);
+                        });
+
+                Toast.makeText(this, "QR Code berhasil disimpan di galeri", Toast.LENGTH_SHORT).show();
+            } catch (Exception e) {
+                e.printStackTrace();
+                Toast.makeText(this, "Gagal menyimpan QR Code ke galeri", Toast.LENGTH_SHORT).show();
+            }
+        } else {
+            // Jika izin tidak diberikan, minta izin kepada pengguna
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                    WRITE_EXTERNAL_STORAGE_PERMISSION_REQUEST);
+        }
     }
 }
