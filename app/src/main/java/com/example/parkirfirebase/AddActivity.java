@@ -81,7 +81,6 @@ public class AddActivity extends AppCompatActivity {
         progressDialog.setMessage("Tunggu sebentar...");
 
         upload = findViewById(R.id.upload);
-        printButton = findViewById(R.id.print);
 
         lokasi.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
@@ -130,17 +129,6 @@ public class AddActivity extends AppCompatActivity {
                     }
                 } else {
                     Toast.makeText(AddActivity.this, "Data sudah diunggah sebelumnya.", Toast.LENGTH_SHORT).show();
-                }
-            }
-        });
-
-        printButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (isQRCodeGenerated && bitmap != null) {
-                    printQRCode(bitmap);
-                } else {
-                    Toast.makeText(AddActivity.this, "QR code belum di-generate atau tidak tersedia", Toast.LENGTH_SHORT).show();
                 }
             }
         });
