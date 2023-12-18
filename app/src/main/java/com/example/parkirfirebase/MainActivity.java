@@ -1,20 +1,14 @@
 package com.example.parkirfirebase;
 
-import android.content.ActivityNotFoundException;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
 import android.view.View;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 
 import com.example.parkirfirebase.databinding.ActivityMainBinding;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-
-import java.io.File;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -64,21 +58,4 @@ public class MainActivity extends AppCompatActivity {
                 .replace(R.id.frame_layout, fragment)
                 .commit();
     }
-
-    public void startReportActivity() {
-        // Ganti 'your_file_name' dengan nama file yang diinginkan
-        File file = new File(Environment.getExternalStorageDirectory(), "Laporan_Parkiran.pdf");
-
-        Intent intent = new Intent(Intent.ACTION_VIEW);
-        intent.setDataAndType(Uri.fromFile(file), "application/pdf");
-        intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
-
-        try {
-            startActivity(intent);
-        } catch (ActivityNotFoundException e) {
-            // Tampilkan pesan jika tidak ada aplikasi yang dapat menangani file PDF
-            Toast.makeText(this, "Tidak ada aplikasi yang dapat menangani file PDF", Toast.LENGTH_SHORT).show();
-        }
-    }
-
 }

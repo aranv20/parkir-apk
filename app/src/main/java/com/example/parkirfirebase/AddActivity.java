@@ -132,9 +132,6 @@ public class AddActivity extends AppCompatActivity {
                             // Set flag menjadi true karena QR code sudah di-generate
                             isQRCodeGenerated = true;
 
-                            // Tambahkan kode lain yang diperlukan setelah QR code di-generate
-                            // ...
-
                         } catch (WriterException e) {
                             e.printStackTrace();
                             Toast.makeText(AddActivity.this, "Gagal membuat QR code: " + e.getMessage(), Toast.LENGTH_SHORT).show();
@@ -144,20 +141,6 @@ public class AddActivity extends AppCompatActivity {
                     }
                 } else {
                     Toast.makeText(AddActivity.this, "QR code sudah di-generate sebelumnya.", Toast.LENGTH_SHORT).show();
-                }
-            }
-        });
-
-        // Tambahkan click listener untuk Print QR Code button
-        printButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // Periksa apakah QR code bitmap tidak null dan sudah di-generate sebelum mencoba mencetak
-                if (bitmap != null && isQRCodeGenerated) {
-                    // Cetak QR Code melalui Bluetooth
-                    printQRCodeViaBluetooth(bitmap);
-                } else {
-                    Toast.makeText(AddActivity.this, "Generate QR code terlebih dahulu sebelum mencetak.", Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -174,55 +157,6 @@ public class AddActivity extends AppCompatActivity {
         }
     }
 
-    private void printQRCodeViaBluetooth(Bitmap qrBitmap) {
-        // Pastikan untuk mengganti dengan alamat printer Bluetooth yang sesungguhnya
-        String alamatBluetoothPrinter = "86:67:7A:62:7C:0E";
-        bluetoothPrinterHelper.connectToBluetoothPrinterAsync(alamatBluetoothPrinter, new BluetoothPrinterHelper.OnBluetoothConnectListener() {
-            @Override
-            public void onConnectSuccess() {
-                // Mengonversi Bitmap ke bentuk byte array (misalnya, format PNG)
-                ByteArrayOutputStream stream = new ByteArrayOutputStream();
-                qrBitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
-                byte[] byteArray = stream.toByteArray();
-
-                // Menambahkan pembukaan dan penutupan (contoh: ESC/P Command)
-                byte[] openingCommand = new byte[]{0x1B, 0x40};  // ESC @ untuk pembukaan
-                byte[] closingCommand = new byte[]{0x1B, 0x4A, 0x00};  // ESC J 0 untuk penutupan
-
-                // Menggabungkan semua data yang akan dicetak
-                byte[] dataToPrint = concatenateByteArrays(openingCommand, byteArray, closingCommand);
-
-                // Cetak data byte array
-                bluetoothPrinterHelper.printData(dataToPrint);
-
-                // Atur QR code pada ImageView setelah pencetakan berhasil
-                qrCode.setImageBitmap(qrBitmap);
-
-                Toast.makeText(AddActivity.this, "QR Code berhasil dicetak", Toast.LENGTH_SHORT).show();
-            }
-
-            private byte[] concatenateByteArrays(byte[]... arrays) {
-                int totalLength = 0;
-                for (byte[] array : arrays) {
-                    totalLength += array.length;
-                }
-
-                byte[] result = new byte[totalLength];
-                int currentIndex = 0;
-                for (byte[] array : arrays) {
-                    System.arraycopy(array, 0, result, currentIndex, array.length);
-                    currentIndex += array.length;
-                }
-
-                return result;
-            }
-
-            @Override
-            public void onConnectFailure() {
-                Toast.makeText(AddActivity.this, "Gagal terhubung ke printer Bluetooth", Toast.LENGTH_SHORT).show();
-            }
-        });
-    }
 
     private void getData() {
         progressDialog.show();
