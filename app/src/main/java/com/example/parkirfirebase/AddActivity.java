@@ -281,6 +281,6 @@ public class AddActivity extends AppCompatActivity {
         printHelper.setOrientation(PrintHelper.ORIENTATION_PORTRAIT);
 
         // Mencetak gambar QR code
-        printHelper.printBitmap("QR Code", qrBitmap);
+        printHelper.printBitmap("QR_Code", qrBitmap);
     }
 }
