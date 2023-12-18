@@ -268,15 +268,6 @@ public class AddActivity extends AppCompatActivity {
         SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss z");
         String formattedDate = dateFormat.format(date);
 
-        // Menggabungkan informasi lokasi, imageUrl, dan waktu menjadi satu string
-        String combinedInfo = lokasi + "_" + imageUrl + "_" + formattedDate;
-
-        // Menghasilkan QR code dari informasi yang digabungkan
-        Bitmap bitmap = generateQRCode(combinedInfo, 300, 300);
-
-        // Tampilkan QR code di ImageView
-        qrCode.setImageBitmap(bitmap);
-
         // Membuat objek LokasiModel baru
         LokasiModel lokasiModel = new LokasiModel(lokasi, imageUrl, date);
 
@@ -285,6 +276,13 @@ public class AddActivity extends AppCompatActivity {
                 .add(lokasiModel)
                 .addOnSuccessListener(documentReference -> {
                     Toast.makeText(AddActivity.this, "Sukses Upload", Toast.LENGTH_SHORT).show();
+
+                    // Setelah berhasil menyimpan ke Firestore, buat QR code menggunakan informasi dari Firestore
+                    String firestoreInfo = lokasi + "_" + imageUrl + "_" + formattedDate;
+                    Bitmap firestoreQRBitmap = generateQRCode(firestoreInfo, 300, 300);
+
+                    // Simpan QR code ke galeri
+                    saveQRCodeToGallery(firestoreQRBitmap);
                 })
                 .addOnFailureListener(e -> {
                     Toast.makeText(AddActivity.this, "Gagal upload lokasi: " + e.getMessage(), Toast.LENGTH_SHORT).show();
@@ -292,6 +290,7 @@ public class AddActivity extends AppCompatActivity {
                 });
     }
 
+    // Metode saveQRCodeToGallery 
     private void saveQRCodeToGallery(Bitmap qrBitmap) {
         // Pastikan aplikasi memiliki izin WRITE_EXTERNAL_STORAGE
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
