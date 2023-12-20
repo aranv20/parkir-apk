@@ -1,16 +1,15 @@
 package com.example.parkirfirebase.auth;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ProgressBar;
-import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.parkirfirebase.MainActivity;
 import com.example.parkirfirebase.R;
@@ -27,9 +26,7 @@ public class Login extends AppCompatActivity {
     Button buttonLogin;
     FirebaseAuth mAuth;
     ProgressBar progressBar;
-    TextView textView;
-
-    //public static final String SHARED_PREF_NAME = "myPref";
+    // TextView textView;
 
     @Override
     public void onStart() {
@@ -52,15 +49,20 @@ public class Login extends AppCompatActivity {
         editTextPassword = findViewById(R.id.password);
         buttonLogin = findViewById(R.id.btn_login);
         progressBar = findViewById(R.id.progressBar);
-        textView = findViewById(R.id.registerNow);
-        textView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(getApplicationContext(), Register.class);
-                startActivity(intent);
-                finish();
-            }
-        });
+        // textView = findViewById(R.id.registerNow);
+
+        /*
+        if (textView != null) {
+            textView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    // Intent intent = new Intent(getApplicationContext(), Register.class);
+                    // startActivity(intent);
+                    // finish();
+                }
+            });
+        }
+        */
 
         buttonLogin.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -70,12 +72,12 @@ public class Login extends AppCompatActivity {
                 email = String.valueOf(editTextEmail.getText());
                 password = String.valueOf(editTextPassword.getText());
 
-                if (TextUtils.isEmpty(email)){
+                if (TextUtils.isEmpty(email)) {
                     Toast.makeText(Login.this, "Masukkan Email", Toast.LENGTH_SHORT).show();
                     return;
                 }
 
-                if (TextUtils.isEmpty(password)){
+                if (TextUtils.isEmpty(password)) {
                     Toast.makeText(Login.this, "Masukkan Password", Toast.LENGTH_SHORT).show();
                     return;
                 }
@@ -91,8 +93,7 @@ public class Login extends AppCompatActivity {
                                     startActivity(intent);
                                     finish();
                                 } else {
-                                    Toast.makeText(Login.this, "Login gagal.",
-                                            Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(Login.this, "Login gagal.", Toast.LENGTH_SHORT).show();
                                 }
                             }
                         });
