@@ -220,8 +220,18 @@ public class AddActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == Activity.RESULT_OK) {
             if (requestCode == REQUEST_IMAGE_CAPTURE && data != null && data.getExtras() != null) {
-                capturedImage = (Bitmap) data.getExtras().get("data");
-                imageView.setImageBitmap(capturedImage);
+                Bitmap capturedImage = (Bitmap) data.getExtras().get("data");
+
+                // Ubah ukuran gambar yang diambil agar sesuai dengan dimensi ImageView
+                int targetWidth = imageView.getWidth();
+                int targetHeight = imageView.getHeight();
+                Bitmap resizedImage = resizeBitmap(capturedImage, targetWidth, targetHeight);
+
+                // Tetapkan gambar yang telah diubah ukurannya ke ImageView
+                imageView.setImageBitmap(resizedImage);
+
+                // Simpan gambar yang telah diubah ukurannya
+                this.capturedImage = resizedImage;
             }
         }
     }
@@ -306,5 +316,10 @@ public class AddActivity extends AppCompatActivity {
             e.printStackTrace();
             return null;
         }
+    }
+
+    // Fungsi untuk mengubah ukuran bitmap sesuai dengan lebar dan tinggi yang ditentukan
+    private Bitmap resizeBitmap(Bitmap bitmap, int width, int height) {
+        return Bitmap.createScaledBitmap(bitmap, width, height, true);
     }
 }
