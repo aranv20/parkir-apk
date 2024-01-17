@@ -15,6 +15,7 @@ import android.widget.Toast;
 
 import androidx.fragment.app.Fragment;
 
+import com.bumptech.glide.Glide;
 import com.example.parkirfirebase.auth.Login;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -22,9 +23,6 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
-import com.bumptech.glide.Glide; // Tambahkan ini
-
-import java.util.Objects;
 
 public class ProfileFragment extends Fragment {
 
@@ -165,20 +163,23 @@ public class ProfileFragment extends Fragment {
 
     // Metode untuk memuat dan menampilkan gambar profil dari URL
     private void loadProfileImage() {
-        if (auth.getCurrentUser() != null) {
+        FirebaseUser currentUser = auth.getCurrentUser();
+        if (currentUser != null && isAdded()) { // Tambahkan pemeriksaan isAdded()
             // Ambil URL gambar dari Realtime Database
-            databaseReference.child(auth.getCurrentUser().getUid()).child("imageUrl").get().addOnCompleteListener(task -> {
-                if (task.isSuccessful()) {
-                    String imageUrl = Objects.requireNonNull(task.getResult()).getValue(String.class);
+            databaseReference.child(currentUser.getUid()).child("imageUrl").get().addOnCompleteListener(task -> {
+                if (isAdded()) { // Tambahkan pemeriksaan isAdded() di dalam callback
+                    if (task.isSuccessful()) {
+                        String imageUrl = task.getResult().getValue(String.class);
 
-                    if (imageUrl != null && !imageUrl.isEmpty()) {
-                        // Gunakan Glide untuk memuat dan menampilkan gambar
-                        Glide.with(this).load(imageUrl).into(imageView);
+                        if (imageUrl != null && !imageUrl.isEmpty()) {
+                            // Gunakan Glide untuk memuat dan menampilkan gambar
+                            Glide.with(requireContext()).load(imageUrl).into(imageView);
+                        } else {
+                            Log.d("ProfileFragment", "URL Foto Profil Kosong atau Null");
+                        }
                     } else {
-                        Log.d("ProfileFragment", "URL Foto Profil Kosong atau Null");
+                        Log.e("ProfileFragment", "Gagal mengambil URL Foto Profil", task.getException());
                     }
-                } else {
-                    Log.e("ProfileFragment", "Gagal mengambil URL Foto Profil", task.getException());
                 }
             });
         }

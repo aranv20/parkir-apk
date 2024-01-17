@@ -13,10 +13,12 @@
     card_view:cardCornerRadius="4dp"
     card_view:cardBackgroundColor="@color/white"
     android:id="@+id/card_view">
+
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:padding="8dp">
+
         <ImageView
             android:id="@+id/iv_image"
             android:layout_width="100dp"
@@ -27,21 +29,22 @@
             card_view:layout_constraintBaseline_toBottomOf="parent"
             card_view:layout_constraintStart_toStartOf="parent"
             card_view:layout_constraintTop_toTopOf="parent"
-            tools:src="@tools:sample/avatars"/>
+            tools:src="@tools:sample/avatars" />
+
         <TextView
             android:id="@+id/namaLokasi"
-            android:textColor="@color/black"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:layout_marginEnd="8dp"
             android:layout_toEndOf="@id/iv_image"
+            android:textColor="@color/black"
             android:textSize="16sp"
             android:textStyle="bold"
             card_view:layout_constraintEnd_toEndOf="parent"
             card_view:layout_constraintStart_toEndOf="@+id/iv_image"
             card_view:layout_constraintTop_toTopOf="@+id/iv_image"
-            tools:text="@string/heroes_name"/>
+            tools:text="@string/heroes_name" />
 
         <TextView
             android:id="@+id/waktu"

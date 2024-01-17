@@ -7,6 +7,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
+import androidx.appcompat.widget.SearchView;
 
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -33,17 +34,15 @@ import java.util.Locale;
 public class HistoryFragment extends Fragment {
 
     private static final String TAG = "HistoryFragment";
-    private MainActivity mainActivity;
-
     private RecyclerView recyclerView;
     private ImageAdapter imageAdapter;
     private List<ImageModel> imageList;
     private ExtendedFloatingActionButton extendedFloatingActionButton;
     private FirebaseFirestore firestore;
+    private SearchView searchView;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_history, container, false);
 
         // Inisialisasi FirebaseFirestore
@@ -51,12 +50,34 @@ public class HistoryFragment extends Fragment {
 
         // Inisialisasi RecyclerView
         recyclerView = view.findViewById(R.id.recycler_view);
-        mainActivity = (MainActivity) getActivity();
         imageList = new ArrayList<>();
         imageAdapter = new ImageAdapter(imageList);
 
         recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
         recyclerView.setAdapter(imageAdapter);
+
+        // Inisialisasi SearchView
+        searchView = view.findViewById(R.id.searchView);
+        searchView.setBackgroundResource(R.color.lavender);
+        searchView.setQueryHint("Search");
+        searchView.setIconifiedByDefault(false);
+
+        // Set listener untuk melakukan pencarian saat text diubah
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                // Pencarian langsung saat menekan tombol 'Enter'
+                performSearch(query);
+                return true;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                // Pencarian saat teks berubah
+                performSearch(newText);
+                return true;
+            }
+        });
 
         // Ambil data dari koleksi "parking" di Firestore
         FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -88,36 +109,29 @@ public class HistoryFragment extends Fragment {
                             }
                         }
 
-                        // Urutkan imageList berdasarkan lokasi (namaLokasi) dan waktu
+                        // Urutkan imageList berdasarkan waktu terbaru
                         Collections.sort(imageList, new Comparator<ImageModel>() {
                             @Override
                             public int compare(ImageModel image1, ImageModel image2) {
-                                // Pertama, bandingkan berdasarkan namaLokasi
-                                int compareByLocation = image1.getNamaLokasi().compareTo(image2.getNamaLokasi());
+                                SimpleDateFormat dateFormat = new SimpleDateFormat("EEE MMM dd HH:mm:ss zzz yyyy", Locale.US);
 
-                                // Jika namaLokasi sama, bandingkan berdasarkan waktu
-                                if (compareByLocation == 0) {
-                                    SimpleDateFormat dateFormat = new SimpleDateFormat("EEE MMM dd HH:mm:ss zzz yyyy", Locale.US);
-
-                                    Date date1, date2;
-                                    try {
-                                        date1 = dateFormat.parse(image1.getWaktu());
-                                        date2 = dateFormat.parse(image2.getWaktu());
-                                    } catch (ParseException e) {
-                                        e.printStackTrace();
-                                        return 0;
-                                    }
-
-                                    // Urutkan secara menaik berdasarkan waktu
-                                    return date1.compareTo(date2);
+                                Date date1, date2;
+                                try {
+                                    date1 = dateFormat.parse(image1.getWaktu());
+                                    date2 = dateFormat.parse(image2.getWaktu());
+                                } catch (ParseException e) {
+                                    e.printStackTrace();
+                                    return 0;
                                 }
 
-                                return compareByLocation;
+                                // Urutkan secara menurun berdasarkan waktu
+                                return date2.compareTo(date1);
                             }
                         });
 
                         // Beri tahu adapter setelah pengurutan
                         imageAdapter.notifyDataSetChanged();
+
                     } else {
                         // Tangani kesalahan
                         Log.e(TAG, "Error getting documents: ", task.getException());
@@ -129,6 +143,25 @@ public class HistoryFragment extends Fragment {
         extendedFloatingActionButton.setOnClickListener(v -> generatePDFAndDownload());
 
         return view;
+    }
+
+    private void performSearch(String query) {
+        List<ImageModel> searchResults = new ArrayList<>();
+
+        if (query.isEmpty()) {
+            // Jika pencarian kosong, tampilkan kembali history asli
+            searchResults.addAll(imageList);
+        } else {
+            // Lakukan pencarian sesuai dengan query
+            for (ImageModel imageModel : imageList) {
+                if (imageModel.getNamaLokasi().toLowerCase().contains(query.toLowerCase()) ||
+                        imageModel.getWaktu().toLowerCase().contains(query.toLowerCase())) {
+                    searchResults.add(imageModel);
+                }
+            }
+        }
+
+        imageAdapter.updateList(searchResults);
     }
 
     private void generatePDFAndDownload() {

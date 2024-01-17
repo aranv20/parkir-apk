@@ -19,14 +19,17 @@ import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
 import com.example.parkirfirebase.R;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHolder> {
 
     private List<ImageModel> imageList;
+    private List<ImageModel> imageListFull; // Full list without filtering
 
     public ImageAdapter(List<ImageModel> imageList) {
         this.imageList = imageList;
+        this.imageListFull = new ArrayList<>(imageList); // Copy all data to the full list
     }
 
     @NonNull
@@ -40,11 +43,11 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHol
     public void onBindViewHolder(@NonNull ImageViewHolder holder, int position) {
         ImageModel imageModel = imageList.get(position);
 
-        // Set data ke tampilan di dalam ViewHolder
+        // Set data to the views inside the ViewHolder
         holder.namaLokasiTextView.setText(imageModel.getNamaLokasi());
-        holder.waktuTextView.setText(imageModel.getWaktu()); // Tambahkan ini
+        holder.waktuTextView.setText(imageModel.getWaktu());
 
-        // Menggunakan Glide untuk memuat gambar dari URL
+        // Use Glide to load the image from the URL
         Glide.with(holder.itemView.getContext())
                 .load(imageModel.getImageUrl())
                 .listener(new RequestListener<Drawable>() {
@@ -70,16 +73,49 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHol
         return imageList.size();
     }
 
+    // This method is used to update the list with search results
+    public void filterList(String query) {
+        // Clear the previous data to store the latest search results
+        imageList.clear();
+
+        // If the query is empty, revert to the full list
+        if (query.isEmpty()) {
+            imageList.addAll(imageListFull);
+        } else {
+            // If not empty, filter based on the query
+            query = query.toLowerCase();
+            for (ImageModel model : imageListFull) {
+                if (model.getNamaLokasi().toLowerCase().contains(query) || model.getWaktu().toLowerCase().contains(query)) {
+                    imageList.add(model);
+                }
+            }
+        }
+
+        notifyDataSetChanged();
+    }
+
+    public void updateList(List<ImageModel> searchResults) {
+        // Bersihkan data sebelumnya untuk menyimpan hasil pencarian terbaru
+        imageList.clear();
+
+        // Tambahkan semua item dari searchResults ke dalam imageList
+        imageList.addAll(searchResults);
+
+        // Beritahu adapter bahwa kumpulan data telah berubah
+        notifyDataSetChanged();
+    }
+
+
     public static class ImageViewHolder extends RecyclerView.ViewHolder {
         ImageView imageView;
         TextView namaLokasiTextView;
-        TextView waktuTextView; // Tambahkan ini
+        TextView waktuTextView;
 
         public ImageViewHolder(@NonNull View itemView) {
             super(itemView);
             imageView = itemView.findViewById(R.id.iv_image);
             namaLokasiTextView = itemView.findViewById(R.id.namaLokasi);
-            waktuTextView = itemView.findViewById(R.id.waktu); // Sesuaikan dengan ID yang sesuai di XML
+            waktuTextView = itemView.findViewById(R.id.waktu);
         }
     }
 }
